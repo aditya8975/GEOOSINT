@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GEOINT PRO · Real Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg0:#010508;--bg1:#040c14;--bg2:#060e1a;--bg3:#09131f;--bg4:#0c1826;
+  --b0:#081018;--b1:#0e1e30;--b2:#162c48;--b3:#1e3c60;
+  --a:#00c8f0;--ag:rgba(246, 249, 250, 0.28);--ad:rgba(255, 255, 255, 0.08);--a2:rgba(0,200,240,.15);
+  --am:#ffb030;--amd:rgba(255,176,48,.1);
+  --gr:#00e87a;--grd:rgba(0,232,122,.08);
+  --rd:#ff2d4a;--rdd:rgba(255,45,74,.12);
+  --pu:#a050ff;--pud:rgba(160,80,255,.1);
+  --or:#ff7020;--ord:rgba(255,112,32,.1);
+  --tl:#00c8b0;--tld:rgba(0,200,176,.08);
+  --ye:#ffd840;
+  --tp:#c8e4ff;--ts:#f0f2f5;--tm:#e6e9ee;
+  --sw:52px;--pw:460px;--th:46px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg0);color:var(--tp);font-family:'Rajdhani',sans-serif;font-size:13px;display:flex;flex-direction:column;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,240,.005) 2px,rgba(0,200,240,.005) 4px);pointer-events:none;z-index:9990;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:var(--bg1);}
+::-webkit-scrollbar-thumb{background:var(--b3);border-radius:2px;}
+
+/* TOPBAR */
+#topbar{height:var(--th);background:rgba(4,12,20,.98);border-bottom:1px solid var(--b2);display:flex;align-items:center;padding:0 10px;gap:8px;flex-shrink:0;z-index:2000;box-shadow:0 2px 20px rgba(0,0,0,.5);}
+.logo{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.logo-hex{width:32px;height:32px;background:linear-gradient(135deg,rgba(0,200,240,.18),rgba(0,200,240,.03));border:1.5px solid var(--a);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 18px var(--ag);animation:hx 3s ease-in-out infinite;}
+@keyframes hx{0%,100%{box-shadow:0 0 14px var(--ag)}50%{box-shadow:0 0 32px var(--ag),0 0 60px rgba(0,200,240,.08)}}
+.logo-txt .logo-m{font-family:'Orbitron',monospace;font-size:12px;font-weight:900;color:var(--a);letter-spacing:3px;}
+.logo-txt .logo-s{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--tm);letter-spacing:2px;}
+.clf{background:rgba(255,45,74,.12);border:1px solid var(--rd);color:var(--rd);font-family:'Orbitron',monospace;font-size:6px;padding:2px 7px;border-radius:1px;letter-spacing:2px;animation:blink 2s infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.srch{flex:1;max-width:300px;position:relative;}
+.srch input{width:100%;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:5px 10px 5px 26px;color:var(--tp);font-family:'Share Tech Mono',monospace;font-size:10px;outline:none;transition:.2s;}
+.srch input:focus{border-color:var(--a);box-shadow:0 0 8px var(--ad);}
+.srch input::placeholder{color:var(--tm);}
+.srch-ic{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--ts);font-size:11px;}
+#sres{position:absolute;top:calc(100%+3px);left:0;right:0;background:var(--bg2);border:1px solid var(--b2);border-radius:2px;z-index:6000;max-height:200px;overflow-y:auto;display:none;box-shadow:0 8px 30px rgba(0,0,0,.7);}
+.sri{padding:7px 11px;cursor:pointer;font-size:10px;font-family:'Share Tech Mono',monospace;border-bottom:1px solid var(--b0);transition:.1s;}
+.sri:hover{background:var(--bg3);color:var(--a);}
+.mtabs{display:flex;gap:2px;}
+.mtab{padding:4px 9px;border-radius:2px;background:var(--bg3);border:1px solid var(--b1);color:var(--tm);font-family:'Orbitron',monospace;font-size:6.5px;letter-spacing:.5px;cursor:pointer;transition:.2s;white-space:nowrap;}
+.mtab:hover{border-color:var(--a);color:var(--ts);}
+.mtab.active{background:var(--ad);border-color:var(--a);color:var(--a);}
+.tbr{display:flex;align-items:center;gap:7px;margin-left:auto;flex-shrink:0;}
+.utc{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--ts);background:var(--bg3);border:1px solid var(--b1);padding:3px 8px;border-radius:2px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gr);box-shadow:0 0 8px var(--gr);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
+.abtn{background:var(--ord);border:1px solid var(--or);color:var(--or);font-family:'Orbitron',monospace;font-size:6.5px;padding:3px 9px;border-radius:2px;cursor:pointer;letter-spacing:.5px;position:relative;transition:.2s;}
+.abtn:hover{box-shadow:0 0 10px var(--or);}
+.abadge{position:absolute;top:-5px;right:-5px;background:var(--rd);color:#fff;font-size:7px;font-family:'Orbitron',monospace;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.keys-btn{background:var(--amd);border:1px solid var(--am);color:var(--am);font-family:'Orbitron',monospace;font-size:6.5px;padding:3px 9px;border-radius:2px;cursor:pointer;letter-spacing:.5px;}
+
+/* TICKER */
+#ticker{height:19px;background:rgba(255,45,74,.07);border-bottom:1px solid rgba(255,45,74,.2);display:flex;align-items:center;overflow:hidden;flex-shrink:0;}
+.tick-live{font-size:7px;font-family:'Orbitron',monospace;color:var(--rd);padding:0 10px;flex-shrink:0;letter-spacing:1px;animation:blink 1s infinite;}
+.tick-wrap{flex:1;overflow:hidden;}
+.tick-txt{font-size:9.5px;font-family:'Share Tech Mono',monospace;color:var(--am);white-space:nowrap;display:inline-block;animation:ticker 80s linear infinite;}
+@keyframes ticker{0%{transform:translateX(200vw)}100%{transform:translateX(-100%)}}
+
+/* MAIN */
+#ml{flex:1;display:flex;overflow:hidden;}
+
+/* SIDEBAR */
+#sb{width:var(--sw);background:var(--bg1);border-right:1px solid var(--b1);display:flex;flex-direction:column;align-items:center;padding:4px 0;gap:1px;z-index:100;flex-shrink:0;overflow-y:auto;}
+.nb{width:44px;height:44px;border-radius:3px;background:transparent;border:1px solid transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--tm);transition:.2s;position:relative;flex-shrink:0;}
+.nb:hover{background:var(--bg3);color:var(--ts);border-color:var(--b1);}
+.nb.active{background:var(--ad);border-color:var(--a);color:var(--a);}
+.ni{font-size:15px;line-height:1;}
+.nl{font-size:5.5px;font-family:'Orbitron',monospace;letter-spacing:.3px;}
+.nsep{width:32px;height:1px;background:var(--b1);margin:2px 0;flex-shrink:0;}
+.nbadge2{position:absolute;top:3px;right:3px;background:var(--rd);color:#fff;font-family:'Orbitron',monospace;font-size:5.5px;padding:0 2px;border-radius:1px;min-width:10px;text-align:center;}
+.nbadge2.am{background:var(--am);color:#000;}
+.nbadge2.gr{background:var(--gr);color:#000;}
+
+/* MAP CONTROLS */
+#ct{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+#mc{padding:4px 7px;background:var(--bg1);border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:3px;flex-wrap:wrap;flex-shrink:0;}
+.cl{font-size:6.5px;font-family:'Orbitron',monospace;color:var(--tm);letter-spacing:.5px;margin-right:1px;}
+.lb{padding:2px 8px;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;color:var(--ts);font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;transition:.15s;white-space:nowrap;}
+.lb:hover{border-color:var(--a);color:var(--a);}
+.lb.active{background:var(--ad);border-color:var(--a);color:var(--a);}
+.csep{width:1px;height:16px;background:var(--b1);margin:0 2px;flex-shrink:0;}
+.di{background:var(--bg3);border:1px solid var(--b1);border-radius:2px;color:var(--tp);font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 6px;outline:none;width:104px;}
+.di:focus{border-color:var(--a);}
+.ab{padding:3px 10px;border-radius:2px;border:none;font-family:'Orbitron',monospace;font-size:7px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:.2s;}
+.btn-a{background:var(--a);color:var(--bg0);}.btn-a:hover{box-shadow:0 0 12px var(--ag);}
+.btn-w{background:var(--amd);border:1px solid var(--am);color:var(--am);}
+.btn-r{background:var(--rdd);border:1px solid var(--rd);color:var(--rd);}
+.btn-pu{background:var(--pud);border:1px solid var(--pu);color:var(--pu);}
+.btn-tl{background:var(--tld);border:1px solid var(--tl);color:var(--tl);}
+
+/* MAP */
+#map-c{flex:1;position:relative;}
+#map{width:100%;height:100%;}
+.leaflet-container{background:#010508!important;}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#060e1a!important;border:1px solid var(--b2)!important;box-shadow:0 6px 30px rgba(0,0,0,.8)!important;border-radius:2px!important;}
+.leaflet-popup-content{margin:0!important;padding:0!important;}
+#mov{position:absolute;top:8px;right:8px;z-index:500;display:flex;flex-direction:column;gap:5px;pointer-events:none;}
+.mw{background:rgba(4,12,20,.94);border:1px solid var(--b1);border-radius:2px;padding:6px 9px;pointer-events:auto;}
+.mwt{font-size:6.5px;font-family:'Orbitron',monospace;color:var(--tm);letter-spacing:.5px;margin-bottom:3px;}
+.mwv{font-family:'Share Tech Mono',monospace;font-size:9.5px;color:var(--a);}
+.mwm{font-size:8px;color:var(--ts);margin-top:1px;font-family:'Share Tech Mono',monospace;}
+.draw-hint{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);background:var(--ad);border:1px solid var(--a);color:var(--a);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 16px;border-radius:20px;z-index:600;display:none;}
+
+/* STATUS BAR */
+#sbar{height:22px;background:var(--bg1);border-top:1px solid var(--b1);display:flex;align-items:center;padding:0 8px;gap:8px;flex-shrink:0;overflow:hidden;}
+.si{display:flex;align-items:center;gap:3px;font-family:'Share Tech Mono',monospace;font-size:8px;white-space:nowrap;}
+.sl{font-size:6.5px;font-family:'Orbitron',monospace;letter-spacing:.5px;color:var(--tm);}
+.sv{color:var(--ts);}
+
+/* PANEL */
+#rp{width:0;background:var(--bg1);border-left:1px solid var(--b1);overflow:hidden;transition:width .22s cubic-bezier(.4,0,.2,1);flex-shrink:0;display:flex;flex-direction:column;}
+#rp.open{width:var(--pw);}
+.ph{padding:10px 12px;border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:rgba(4,12,20,.6);}
+.pt{font-family:'Orbitron',monospace;font-size:9.5px;letter-spacing:2px;color:var(--a);}
+.pc{background:none;border:none;color:var(--tm);cursor:pointer;font-size:16px;line-height:1;transition:.2s;}
+.pc:hover{color:var(--tp);}
+.pb{flex:1;overflow-y:auto;padding:10px;}
+
+/* PANEL COMPONENTS */
+.stit{font-family:'Orbitron',monospace;font-size:7.5px;letter-spacing:2px;color:var(--a);border-bottom:1px solid var(--b1);padding-bottom:5px;margin-bottom:8px;margin-top:13px;display:flex;justify-content:space-between;align-items:center;}
+.stit:first-child{margin-top:0;}
+.stit.am{color:var(--am);border-color:rgba(255,176,48,.2);}
+.stit.rd{color:var(--rd);border-color:rgba(255,45,74,.2);}
+.stit.gr{color:var(--gr);border-color:rgba(0,232,122,.2);}
+.stit.pu{color:var(--pu);border-color:rgba(160,80,255,.2);}
+.stit.tl{color:var(--tl);border-color:rgba(0,200,176,.2);}
+.stit.or{color:var(--or);border-color:rgba(255,112,32,.2);}
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;}
+.ig3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px;}
+.ic{background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:7px 9px;}
+.icf{grid-column:span 2;}.icf3{grid-column:span 3;}
+.lbl{font-size:6.5px;font-family:'Orbitron',monospace;color:var(--tm);letter-spacing:.5px;margin-bottom:2px;}
+.val{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--tp);}
+.val.a{color:var(--a);}.val.g{color:var(--gr);}.val.am{color:var(--am);}.val.rd{color:var(--rd);}.val.pu{color:var(--pu);}.val.tl{color:var(--tl);}.val.or{color:var(--or);}
+.pbb{width:100%;height:3px;background:var(--b1);border-radius:2px;margin-top:4px;overflow:hidden;}
+.pbf{height:100%;border-radius:2px;transition:width .6s;}
+.mr{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--b0);}
+.mr:last-child{border-bottom:none;}
+.ml2{font-size:11px;color:var(--ts);}
+.mv{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--tp);}
+.bdg{padding:1px 7px;border-radius:2px;font-size:7px;font-family:'Orbitron',monospace;letter-spacing:.5px;}
+.bdg-a{background:var(--ad);border:1px solid var(--a);color:var(--a);}
+.bdg-g{background:var(--grd);border:1px solid var(--gr);color:var(--gr);}
+.bdg-am{background:var(--amd);border:1px solid var(--am);color:var(--am);}
+.bdg-rd{background:var(--rdd);border:1px solid var(--rd);color:var(--rd);}
+.bdg-pu{background:var(--pud);border:1px solid var(--pu);color:var(--pu);}
+.bdg-tl{background:var(--tld);border:1px solid var(--tl);color:var(--tl);}
+.thr{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.thrl{font-size:10px;color:var(--ts);width:120px;flex-shrink:0;}
+.thrk{flex:1;height:4px;background:var(--b1);border-radius:2px;overflow:hidden;}
+.thrf{height:100%;border-radius:2px;transition:width .6s;}
+.thrp{font-family:'Share Tech Mono',monospace;font-size:9.5px;color:var(--tm);width:32px;text-align:right;}
+.sp{display:inline-block;width:11px;height:11px;border:2px solid var(--b1);border-top-color:var(--a);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ldb{display:flex;align-items:center;gap:7px;padding:12px;color:var(--tm);font-family:'Share Tech Mono',monospace;font-size:10px;}
+.fb{width:100%;padding:7px;border-radius:2px;border:none;font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:.2s;margin-bottom:5px;}
+.fb-a{background:var(--a);color:var(--bg0);}.fb-a:hover{box-shadow:0 0 14px var(--ag);}
+.fb-o{background:transparent;border:1px solid var(--a);color:var(--a);}.fb-o:hover{background:var(--ad);}
+.fb-g{background:var(--grd);border:1px solid var(--gr);color:var(--gr);}
+.fb-am{background:var(--amd);border:1px solid var(--am);color:var(--am);}
+.fb-pu{background:var(--pud);border:1px solid var(--pu);color:var(--pu);}
+.fb-tl{background:var(--tld);border:1px solid var(--tl);color:var(--tl);}
+.fb-rd{background:var(--rdd);border:1px solid var(--rd);color:var(--rd);}
+.ir{display:flex;gap:4px;margin-bottom:7px;}
+.ir input,.ir select,.ir textarea{flex:1;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;color:var(--tp);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 9px;outline:none;resize:none;}
+.ir input:focus,.ir select:focus,.ir textarea:focus{border-color:var(--a);}
+.ir button{padding:6px 13px;background:var(--a);border:none;border-radius:2px;color:var(--bg0);font-family:'Orbitron',monospace;font-size:7px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+.tag{padding:2px 7px;background:var(--bg1);border:1px solid var(--b1);border-radius:10px;font-size:8.5px;color:var(--ts);font-family:'Share Tech Mono',monospace;}
+.tgl{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px;}
+.fl{height:11px;border-radius:1px;vertical-align:middle;margin-right:4px;}
+.fllg{height:22px;border-radius:2px;box-shadow:0 1px 6px rgba(0,0,0,.4);}
+.src-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--b0);}
+.src-n{font-size:11px;font-weight:600;color:var(--tp);}
+.cw{background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:8px;margin-bottom:7px;}
+.cw canvas{max-height:130px;}
+.conf-pill{font-size:8px;font-family:'Orbitron',monospace;padding:1px 6px;border-radius:8px;}
+.conf-hi{background:var(--grd);border:1px solid var(--gr);color:var(--gr);}
+.conf-md{background:var(--amd);border:1px solid var(--am);color:var(--am);}
+.conf-lo{background:var(--rdd);border:1px solid var(--rd);color:var(--rd);}
+
+/* MIL CARDS */
+.mil-card{background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:8px 10px;margin-bottom:5px;cursor:pointer;transition:.15s;}
+.mil-card:hover{border-color:var(--b2);}
+.mil-type{font-size:7px;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:3px;}
+.mil-name{font-size:11px;font-weight:600;color:var(--tp);margin-bottom:3px;}
+.mil-meta{font-size:9px;color:var(--ts);font-family:'Share Tech Mono',monospace;}
+.ac-card{background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:7px 9px;margin-bottom:4px;cursor:pointer;transition:.15s;}
+.ac-card:hover{border-color:var(--b2);}
+.ac-card.suspicious{border-color:var(--rd);background:rgba(255,45,74,.05);}
+.ac-cs{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--tl);}
+.ac-cs.sus{color:var(--rd);}
+.ac-meta{font-size:8.5px;color:var(--ts);font-family:'Share Tech Mono',monospace;margin-top:2px;}
+.nc{background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:8px 10px;margin-bottom:5px;}
+.nm{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:3px;}
+.ns{font-size:7.5px;font-family:'Orbitron',monospace;color:var(--or);}
+.nt{font-size:8px;font-family:'Share Tech Mono',monospace;color:var(--tm);}
+.nlang{font-size:6.5px;background:var(--bg1);border:1px solid var(--b1);color:var(--ts);padding:1px 4px;border-radius:2px;font-family:'Orbitron',monospace;}
+.nttl{font-size:11px;font-weight:600;color:var(--tp);line-height:1.3;margin-bottom:3px;}
+.ndesc{font-size:9.5px;color:var(--ts);line-height:1.4;margin-bottom:5px;}
+.nlink{font-size:8px;font-family:'Orbitron',monospace;color:var(--a);text-decoration:none;}
+.nlink:hover{text-shadow:0 0 8px var(--ag);}
+.nth{width:60px;height:46px;object-fit:cover;border-radius:2px;flex-shrink:0;border:1px solid var(--b1);margin-right:8px;float:left;}
+.ev-card{background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:8px 10px;margin-bottom:5px;}
+.ev-card.critical{border-color:rgba(255,45,74,.4);}
+.ev-card.high{border-color:rgba(255,176,48,.3);}
+.ch-msg{padding:10px;border-radius:2px;margin-bottom:6px;font-size:11px;line-height:1.6;font-family:'Rajdhani',sans-serif;}
+.ch-user{background:var(--ad);border:1px solid var(--a);color:var(--tp);}
+.ch-ai{background:var(--bg3);border:1px solid var(--b1);color:var(--ts);}
+.ch-ai b{color:var(--a);}
+.ch-area{height:140px;overflow-y:auto;margin-bottom:7px;padding:2px;}
+.qp{background:var(--bg3);border:1px solid var(--b1);color:var(--ts);font-size:9px;font-family:'Share Tech Mono',monospace;padding:5px 9px;border-radius:2px;cursor:pointer;transition:.15s;margin:0 3px 3px 0;display:inline-block;}
+.qp:hover{border-color:var(--a);color:var(--a);}
+.si-row{margin-bottom:9px;}
+.si-lbl{font-size:7px;font-family:'Orbitron',monospace;color:var(--ts);letter-spacing:.5px;margin-bottom:3px;}
+.si-inp{width:100%;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:6px 9px;color:var(--tp);font-family:'Share Tech Mono',monospace;font-size:10px;outline:none;}
+.si-inp:focus{border-color:var(--a);}
+.si-desc{font-size:8.5px;color:var(--tm);margin-top:2px;}
+.osint-a{display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--bg2);border:1px solid var(--b0);border-radius:2px;margin-bottom:3px;color:var(--ts);text-decoration:none;font-size:10px;transition:.15s;}
+.osint-a:hover{border-color:var(--pu);color:var(--pu);}
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(0,200,240,.9);color:var(--bg0);padding:7px 18px;border-radius:20px;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:1px;z-index:9998;opacity:0;transition:.3s;pointer-events:none;max-width:90%;text-align:center;}
+#toast.show{opacity:1;}
+
+/* KEY MODAL */
+#kmodal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000;align-items:center;justify-content:center;}
+#kmodal.show{display:flex;}
+.kbox{background:var(--bg2);border:1px solid var(--b2);border-radius:4px;padding:18px;width:520px;max-height:85vh;overflow-y:auto;box-shadow:0 10px 50px rgba(0,0,0,.8);}
+.kttl{font-family:'Orbitron',monospace;font-size:10px;color:var(--a);letter-spacing:2px;margin-bottom:14px;}
+.krow{margin-bottom:9px;}
+.klbl{font-size:8px;font-family:'Share Tech Mono',monospace;color:var(--am);margin-bottom:3px;}
+.kinp{width:100%;background:var(--bg3);border:1px solid var(--b2);color:var(--tp);font-family:'Share Tech Mono',monospace;font-size:9.5px;padding:6px 9px;border-radius:2px;outline:none;}
+.kinp:focus{border-color:var(--a);}
+.kdesc{font-size:8px;color:var(--tm);margin-top:2px;}
+.ksave{background:var(--ad);border:1px solid var(--a);color:var(--a);font-family:'Orbitron',monospace;font-size:8px;padding:8px 16px;border-radius:2px;cursor:pointer;width:100%;margin-top:10px;letter-spacing:1px;}
+.kclose{float:right;background:none;border:none;color:var(--tm);font-size:18px;cursor:pointer;margin-top:-4px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="logo">
+    <div class="logo-hex">⬡</div>
+    <div class="logo-txt"><div class="logo-m">GEOINT PRO</div><div class="logo-s">REAL-DATA INTELLIGENCE PLATFORM · OSS</div></div>
+  </div>
+  <div class="clf">UNCLASSIFIED</div>
+  <div class="srch">
+    <span class="srch-ic">◎</span>
+    <input type="text" id="sinput" placeholder="Search location, coordinates, target name...">
+    <div id="sres"></div>
+  </div>
+  <div class="mtabs">
+    <button class="mtab active" onclick="switchMod('geo',event)">GEO/SAT</button>
+    <button class="mtab" onclick="switchMod('mil',event)">MILITARY</button>
+    <button class="mtab" onclick="switchMod('air',event)">AIR TRACK</button>
+    <button class="mtab" onclick="switchMod('intel',event)">INTEL</button>
+    <button class="mtab" onclick="switchMod('cyber',event)">CYBER</button>
+  </div>
+  <div class="tbr">
+    <div class="utc" id="uclock">UTC 00:00:00</div>
+    <div class="live-dot"></div>
+    <button class="keys-btn" onclick="openKeys()">⚙ API KEYS</button>
+    <button class="abtn" onclick="showPanel('alerts')">⚡ ALERTS <span class="abadge" id="abadge">0</span></button>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div id="ticker">
+  <span class="tick-live">⚡ LIVE</span>
+  <div class="tick-wrap"><span class="tick-txt" id="ttext">GEOINT PRO initializing · Real data from OSM Military, OpenSky ADS-B, GDELT, USGS, NASA GIBS, The Guardian, Open-Meteo, REST Countries, World Bank · All data open-source and publicly verifiable</span></div>
+</div>
+
+<!-- MAIN -->
+<div id="ml">
+  <!-- SIDEBAR -->
+  <div id="sb">
+    <div id="sb-geo">
+      <button class="nb active" onclick="showPanel('overview')" id="nav-overview" title="Overview"><span class="ni">🌐</span><span class="nl">OVER</span></button>
+      <button class="nb" onclick="showPanel('intel-area')" id="nav-intel-area" title="Area Intel"><span class="ni">📍</span><span class="nl">INTEL</span></button>
+      <button class="nb" onclick="showPanel('change')" id="nav-change" title="Change Detection"><span class="ni">📊</span><span class="nl">DELTA</span></button>
+      <button class="nb" onclick="showPanel('environ')" id="nav-environ" title="Environmental"><span class="ni">🌡</span><span class="nl">ENV</span></button>
+      <button class="nb" onclick="showPanel('ai')" id="nav-ai" title="AI Analysis"><span class="ni">🤖</span><span class="nl">AI</span></button>
+    </div>
+    <div id="sb-mil" style="display:none">
+      <button class="nb" onclick="showPanel('military')" id="nav-military" title="Military Bases"><span class="ni">🛡</span><span class="nl">BASES</span><span class="nbadge2" id="b-mil">0</span></button>
+      <button class="nb" onclick="showPanel('airports')" id="nav-airports" title="Airfields"><span class="ni">🛫</span><span class="nl">AIR</span><span class="nbadge2" id="b-ap">0</span></button>
+      <button class="nb" onclick="showPanel('infra')" id="nav-infra" title="Infrastructure"><span class="ni">⚡</span><span class="nl">INFRA</span></button>
+    </div>
+    <div id="sb-air" style="display:none">
+      <button class="nb" onclick="showPanel('airtrack')" id="nav-airtrack" title="Live Aircraft"><span class="ni">✈</span><span class="nl">LIVE</span><span class="nbadge2 gr" id="b-ac">0</span></button>
+      <button class="nb" onclick="showPanel('suspicious')" id="nav-suspicious" title="Suspicious Flights"><span class="ni">🚨</span><span class="nl">ALERT</span><span class="nbadge2" id="b-sus">0</span></button>
+    </div>
+    <div id="sb-intel" style="display:none">
+      <button class="nb" onclick="showPanel('events')" id="nav-events" title="GDELT Events"><span class="ni">🔴</span><span class="nl">EVENTS</span><span class="nbadge2" id="b-ev">0</span></button>
+      <button class="nb" onclick="showPanel('news')" id="nav-news" title="News Intel"><span class="ni">📰</span><span class="nl">NEWS</span><span class="nbadge2 am" id="b-news">0</span></button>
+      <button class="nb" onclick="showPanel('quakes')" id="nav-quakes" title="Seismic"><span class="ni">🌍</span><span class="nl">SEISMIC</span><span class="nbadge2" id="b-eq">0</span></button>
+      <button class="nb" onclick="showPanel('crisis')" id="nav-crisis" title="Crisis"><span class="ni">🆘</span><span class="nl">CRISIS</span></button>
+      <button class="nb" onclick="showPanel('country')" id="nav-country" title="Country Intel"><span class="ni">🏳</span><span class="nl">COUNTRY</span></button>
+    </div>
+    <div id="sb-cyber" style="display:none">
+      <button class="nb" onclick="showPanel('cyber')" id="nav-cyber" title="Cyber Intel"><span class="ni">🔒</span><span class="nl">CYBER</span></button>
+      <button class="nb" onclick="showPanel('osint')" id="nav-osint" title="OSINT"><span class="ni">🔍</span><span class="nl">OSINT</span></button>
+      <button class="nb" onclick="showPanel('actors')" id="nav-actors" title="APT Actors"><span class="ni">👾</span><span class="nl">APT</span></button>
+    </div>
+    <div class="nsep"></div>
+    <button class="nb" onclick="showPanel('history')" id="nav-history" title="Log"><span class="ni">📋</span><span class="nl">LOG</span></button>
+    <button class="nb" onclick="showPanel('sources')" id="nav-sources" title="Sources"><span class="ni">🛰</span><span class="nl">SRC</span></button>
+    <button class="nb" onclick="showPanel('settings')" id="nav-settings" title="Settings"><span class="ni">⚙</span><span class="nl">CFG</span></button>
+  </div>
+
+  <!-- CENTER -->
+  <div id="ct">
+    <div id="mc">
+      <span class="cl">SAT</span>
+      <button class="lb active" id="lyr-true" onclick="setLayer('true_color')" style="border-color:var(--gr);color:var(--gr)">TRUE RGB</button>
+       <button class="lb" id="lyr-esri_sat" onclick="setLayer('esri_sat')">SATELLITE</button>
+      <button class="lb" id="lyr-aqua" onclick="setLayer('aqua_true')">AQUA</button>
+      <button class="lb" id="lyr-viirs" onclick="setLayer('viirs_true')">VIIRS</button>
+      <button class="lb" id="lyr-swir" onclick="setLayer('false_burn')">SWIR</button>
+      <button class="lb" id="lyr-ndvi" onclick="setLayer('ndvi')">NDVI</button>
+      <button class="lb" id="lyr-thermal" onclick="setLayer('thermal_day')">THERMAL</button>
+      <button class="lb" id="lyr-night" onclick="setLayer('night_lights')">🌃 NIGHT</button>
+      <div class="csep"></div>
+      <span class="cl">OVERLAYS</span>
+      <button class="lb" id="obtn-mil" onclick="toggleOv('mil',fetchMilitary)">🛡 MIL BASES</button>
+      <button class="lb" id="obtn-air" onclick="toggleOv('airports',fetchAirports)">🛫 AIRFIELDS</button>
+      <button class="lb" id="obtn-ac" onclick="toggleOv('ac',fetchAircraft)">✈ AIRCRAFT</button>
+      <button class="lb" id="obtn-ev" onclick="toggleOv('ev',fetchGDELT)">🔴 EVENTS</button>
+      <button class="lb" id="obtn-eq" onclick="toggleOv('eq',fetchEQ)">🌍 QUAKES</button>
+      <button class="lb" id="obtn-fire" onclick="toggleOv('fire',fetchFIRMS)">🔥 FIRE</button>
+      <button class="lb" id="obtn-infra" onclick="toggleOv('infra',fetchInfra)">⚡ INFRA</button>
+      <button class="lb" id="obtn-sea" onclick="toggleSea()">🌊 SEA</button>
+      <button class="lb" id="obtn-rail" onclick="toggleRail()">🚆 RAIL</button>
+      <div class="csep"></div>
+      <span class="cl">BEFORE</span><input type="date" class="di" id="bdate" value="2022-01-01">
+      <span class="cl" style="margin-left:3px">AFTER</span><input type="date" class="di" id="adate" value=""   onfocus="value=new Date().toISOString().split('T')[0]" >
+      <div class="csep"></div>
+      <button class="ab btn-w" onclick="startROI()">✦ ROI</button>
+      <button class="ab btn-a" onclick="runFullAnalysis()">⚡ ANALYZE</button>
+      <button class="ab btn-pu" onclick="runAI()">🤖 AI BRIEF</button>
+      <button class="ab btn-tl" onclick="runLive()">🔴 LIVE ALL</button>
+      <button class="ab btn-r" onclick="clearAll()">✕ CLEAR</button>
+    </div>
+    <div id="map-c">
+      <div id="map"></div>
+      <div id="mov">
+        <div class="mw" style="min-width:170px"><div class="mwt">CURSOR POSITION</div><div class="mwv" id="cpos">LAT: —  LON: —</div><div class="mwm" id="czoom">ZOOM: — · EPSG:3857</div></div>
+        <div class="mw" id="roi-w" style="display:none"><div class="mwt">ROI SELECTED</div><div class="mwv" id="roi-area" style="color:var(--gr)">—</div><div class="mwm" id="roi-bbox">—</div></div>
+        <div class="mw" id="live-w" style="display:none">
+          <div class="mwt">LIVE FEEDS</div>
+          <div class="mwm" id="lw-ac">✈ — aircraft</div>
+          <div class="mwm" id="lw-mil">🛡 — mil installations</div>
+          <div class="mwm" id="lw-ev">🔴 — GDELT events</div>
+          <div class="mwm" id="lw-eq">🌍 — earthquakes</div>
+        </div>
+        <div class="mw"><div class="mwt">ACTIVE LAYER</div><div class="mwv" id="lyr-name" style="font-size:9px">MODIS Terra TrueColor</div><div class="mwm" id="lyr-date">—</div></div>
+      </div>
+      <div class="draw-hint" id="draw-hint">🖊 Click and drag to select Region of Interest</div>
+    </div>
+    <div id="sbar">
+      <div class="si"><span class="sl">SAT</span><span class="sv" id="st-sat">NASA GIBS/MODIS</span></div>│
+      <div class="si"><span class="sl">CURSOR</span><span class="sv" id="st-cur">—</span></div>│
+      <div class="si"><span class="sl">ROI</span><span class="sv" id="st-roi">NOT SELECTED</span></div>│
+      <div class="si"><span class="sl">AIRCRAFT</span><span class="sv" id="st-ac" style="color:var(--tl)">—</span></div>│
+      <div class="si"><span class="sl">MIL SITES</span><span class="sv" id="st-mil">—</span></div>│
+      <div class="si"><span class="sl">STATUS</span><span class="sv" id="st-ana" style="color:var(--tm)">IDLE</span></div>│
+      <div class="si"><span class="sl">DATA SOURCE</span><span class="sv" style="color:var(--tl)">OSM · OpenSky · GDELT · USGS · Guardian · Open-Meteo</span></div>
+    </div>
+  </div>
+
+  <div id="rp">
+    <div class="ph"><div class="pt" id="ptitle">GEOINT PRO</div><button class="pc" onclick="closePanel()">✕</button></div>
+    <div class="pb" id="pbody"></div>
+  </div>
+</div>
+
+<!-- API KEYS MODAL -->
+<div id="kmodal">
+  <div class="kbox">
+    <button class="kclose" onclick="closeKeys()">✕</button>
+    <div class="kttl">⚙ API KEY CONFIGURATION</div>
+    <div class="krow"><div class="klbl">GROQ API KEY (Free AI — console.groq.com)</div><input class="kinp" type="password" id="k-groq" placeholder="gsk_..."><div class="kdesc">Free. Powers AI briefings when Claude API not available. Instant signup.</div></div>
+    <div class="krow"><div class="klbl">NASA FIRMS MAP KEY (Free fire data — firms.modaps.eosdis.nasa.gov/api/map_key)</div><input class="kinp" type="password" id="k-firms" placeholder="NASA FIRMS key..."><div class="kdesc">Free instant key. Enables 🔥 FIRE overlay with real VIIRS thermal anomalies.</div></div>
+    <div class="krow"><div class="klbl">GUARDIAN API KEY (Optional — open-platform.theguardian.com)</div><input class="kinp" type="password" id="k-guardian" placeholder="Leave blank for free test key"><div class="kdesc">Blank uses 'test' key (50 req/hr). Registered key = 5000 req/day.</div></div>
+    <div class="krow"><div class="klbl">ACLED API KEY + EMAIL (Free — developer.acleddata.com)</div><input class="kinp" type="text" id="k-acled-email" placeholder="Email registered with ACLED"><input class="kinp" type="password" id="k-acled-key" placeholder="ACLED API key..." style="margin-top:4px"><div class="kdesc">Free academic/research. Adds real armed conflict events with fatalities, actors, dates.</div></div>
+    <div class="krow"><div class="klbl">ABUSEIPDB KEY (Free — abuseipdb.com)</div><input class="kinp" type="password" id="k-abuse" placeholder="AbuseIPDB key..."><div class="kdesc">Free 1000 checks/day. Powers IP threat intelligence in Cyber panel.</div></div>
+    <div class="krow"><div class="klbl">VIRUSTOTAL KEY (Free — virustotal.com)</div><input class="kinp" type="password" id="k-vt" placeholder="VirusTotal API key..."><div class="kdesc">Free 500/day. Domain and IP threat scanning.</div></div>
+    <button class="ksave" onclick="saveKeys()">SAVE KEYS & REINITIALIZE FEEDS</button>
+    <div style="font-size:8.5px;color:var(--tm);margin-top:8px;font-family:'Share Tech Mono',monospace">Keys stored locally in your browser only. Never transmitted to any server except the respective API providers.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// GEOINT PRO · Real Intelligence Platform
+// All data from verified public sources:
+// OSM Overpass · OpenSky ADS-B · GDELT v2 · USGS
+// NASA GIBS/FIRMS · Guardian · Open-Meteo
+// REST Countries · World Bank · ReliefWeb
+// ═══════════════════════════════════════════════════
+
+// ─── NASA GIBS SATELLITE LAYERS ────────────────
+const LAYERS = {
+  true_color:  {name:'MODIS Terra · True Color',     layer:'MODIS_Terra_CorrectedReflectance_TrueColor', ext:'jpg', res:'250m', sat:'NASA GIBS/MODIS Terra', desc:'Natural RGB — operational standard for site analysis'},
+  aqua_true:   {name:'MODIS Aqua · True Color',      layer:'MODIS_Aqua_CorrectedReflectance_TrueColor',  ext:'jpg', res:'250m', sat:'NASA GIBS/MODIS Aqua',  desc:'Afternoon pass — different cloud cover than Terra'},
+  viirs_true:  {name:'VIIRS/S-NPP · True Color',     layer:'VIIRS_SNPP_CorrectedReflectance_TrueColor',  ext:'jpg', res:'375m', sat:'NASA GIBS/VIIRS NPP',   desc:'Superior land/coastal detail — border monitoring'},
+  false_burn:  {name:'MODIS · SWIR Burn (7-2-1)',    layer:'MODIS_Terra_CorrectedReflectance_Bands721',   ext:'jpg', res:'250m', sat:'NASA GIBS/MODIS',       desc:'Burn scars red, floods blue — post-strike assessment'},
+  false_veg:   {name:'MODIS · NIR False Color',      layer:'MODIS_Terra_CorrectedReflectance_Bands367',   ext:'jpg', res:'250m', sat:'NASA GIBS/MODIS',       desc:'Dense vegetation = bright red. Soil disturbance visible'},
+  ndvi:        {name:'MODIS · NDVI 8-Day',           layer:'MODIS_Terra_NDVI_8Day',                       ext:'png', res:'500m', sat:'NASA GIBS/MODIS',       desc:'Vegetation index — agriculture, deforestation, activity'},
+  thermal_day: {name:'MODIS · Land Temp Day',        layer:'MODIS_Terra_Land_Surface_Temp_Day',           ext:'png', res:'1km',  sat:'NASA GIBS/MODIS',       desc:'Daytime heat — industrial, military, urban signatures'},
+  night_lights:{name:'VIIRS · Night Lights DNB',     layer:'VIIRS_SNPP_DayNightBand_ENCC',               ext:'jpg', res:'500m', sat:'NASA GIBS/VIIRS NPP',   desc:'Power grid, activity, shipping — critical infrastructure'},
+};
+
+// ─── OSM MILITARY TYPE CLASSIFICATION ──────────
+const MIL_TYPES = {
+  airfield:       {icon:'🛫', color:'#00c8f0', label:'MILITARY AIRFIELD', priority:1},
+  base:           {icon:'🛡', color:'#ff9030', label:'MILITARY BASE',     priority:2},
+  naval_base:     {icon:'⚓', color:'#00c8b0', label:'NAVAL BASE',        priority:1},
+  barracks:       {icon:'🏠', color:'#ffb030', label:'BARRACKS',          priority:4},
+  range:          {icon:'🎯', color:'#ff3050', label:'WEAPONS RANGE',     priority:3},
+  training_area:  {icon:'📋', color:'#a050ff', label:'TRAINING AREA',    priority:4},
+  checkpoint:     {icon:'🔒', color:'#ffb030', label:'CHECKPOINT',        priority:5},
+  danger_area:    {icon:'⚠', color:'#ff3050', label:'RESTRICTED ZONE',   priority:2},
+  nuclear_explosion_site:{icon:'☢', color:'#ff3050', label:'NUCLEAR SITE', priority:1},
+  launchpad:      {icon:'🚀', color:'#ff3050', label:'LAUNCH FACILITY',   priority:1},
+  bunker:         {icon:'🏚', color:'#a050ff', label:'BUNKER',            priority:3},
+};
+const INFRA_TYPES = {
+  'power=plant':      {icon:'⚡', color:'#ffd840', label:'POWER PLANT'},
+  'power=substation': {icon:'🔌', color:'#ffd840', label:'SUBSTATION'},
+  'man_made=petroleum_well':{icon:'🛢', color:'#ff7020', label:'OIL WELL'},
+  'pipeline=yes':     {icon:'🔧', color:'#ff7020', label:'PIPELINE'},
+  'bridge=yes':       {icon:'🌉', color:'#00c8f0', label:'BRIDGE'},
+  'telecom=exchange': {icon:'📡', color:'#a050ff', label:'TELECOM HUB'},
+};
+
+// ─── SUSPICIOUS AIRCRAFT PATTERNS ──────────────
+const AC_SUSPICIOUS_RULES = [
+  {id:'no_callsign', test: s => !s[1]||s[1].trim()===''||s[1].trim()==='00000000', label:'NO CALLSIGN', sev:'high'},
+  {id:'mil_callsign', test: s => /^(RCH|DUKE|REACH|HAVOC|JAKE|COBRA|SPAR|USAF|NAVY|ARMY|SAM|AF[0-9]|VVIP)/i.test(s[1]||''), label:'MILITARY CALLSIGN', sev:'info'},
+  {id:'low_alt_fast', test: s => s[7]!==null && s[9]!==null && s[7]<500 && s[9]>150, label:'LOW ALTITUDE HIGH SPEED', sev:'critical'},
+  {id:'squawk_7700', test: s => s[14]==='7700', label:'SQUAWK 7700 EMERGENCY', sev:'critical'},
+  {id:'squawk_7600', test: s => s[14]==='7600', label:'SQUAWK 7600 RADIO FAIL', sev:'high'},
+  {id:'squawk_7500', test: s => s[14]==='7500', label:'SQUAWK 7500 HIJACK', sev:'critical'},
+  {id:'extreme_speed', test: s => s[9]!==null && s[9]>900, label:'FIGHTER-CLASS SPEED >900km/h', sev:'high'},
+];
+
+// ─── APT THREAT ACTORS ─────────────────────────
+const ACTORS = [
+  {name:'APT29 · Cozy Bear',country:'Russia',cc:'ru',motive:'State Espionage',targets:'Government, Think Tanks, Elections, Healthcare',ttps:['Spear-phishing','WellMail','SUNBURST SolarWinds','MiniDuke'],risk:95,active:true},
+  {name:'APT28 · Fancy Bear',country:'Russia',cc:'ru',motive:'Political Influence',targets:'NATO, Military, Elections',ttps:['X-Agent','Sofacy','VPN exploitation','Credential theft'],risk:87,active:true},
+  {name:'Sandworm · Voodoo Bear',country:'Russia',cc:'ru',motive:'Critical Infrastructure Sabotage',targets:'Ukraine grid, NATO, Olympics',ttps:['NotPetya','BlackEnergy','WhisperGate','KillDisk'],risk:96,active:true},
+  {name:'APT41 · Winnti Group',country:'China',cc:'cn',motive:'Espionage + Financial',targets:'Healthcare, Telecom, Gaming, Defense',ttps:['Supply chain attacks','ShadowPad','PlugX RAT','Ransomware'],risk:90,active:true},
+  {name:'Volt Typhoon',country:'China',cc:'cn',motive:'Pre-positioning / Sabotage',targets:'US critical infrastructure, GUAM, Pacific',ttps:['Living-off-the-land','SOHO router compromise','Web shells','Covert tunneling'],risk:93,active:true},
+  {name:'Lazarus Group',country:'North Korea',cc:'kp',motive:'Financial + Sabotage',targets:'Banks, Crypto, Defense',ttps:['SWIFT attacks','AppleJeus','WannaCry','Crypto theft'],risk:88,active:true},
+  {name:'Charming Kitten · APT35',country:'Iran',cc:'ir',motive:'Espionage + Influence',targets:'Journalists, Nuclear experts, Activists',ttps:['Fake Zoom/VPN','LinkedIn phishing','RANA malware'],risk:78,active:true},
+  {name:'APT36 · Transparent Tribe',country:'Pakistan',cc:'pk',motive:'India Military Espionage',targets:'Indian Army, Government, Defense PSUs',ttps:['ObliqueRAT','Crimson RAT','Android spyware','Spear-phishing'],risk:72,active:true},
+  {name:'SideWinder · APT-C-17',country:'India',cc:'in',motive:'Regional Espionage',targets:'Pakistan, China, Nepal, Sri Lanka',ttps:['LNK files','RTF exploits','WARZONE RAT'],risk:65,active:true},
+];
+
+// ─── STATE ─────────────────────────────────────
+const S = {
+  map: null, lyG: null,
+  grps: {mil:null,airports:null,ac:null,ev:null,eq:null,fire:null,infra:null,roi:null},
+  seaL: null, railL: null, drawnItems: null, drawCtrl: null,
+  currentLayer: 'true_color', currentMod: 'geo',
+  ov: new Set(),
+  keys: {groq:'',firms:'',guardian:'',acledEmail:'',acledKey:'',abuse:'',vt:''},
+  data: {mil:[], airports:[], aircraft:[], events:[], quakes:[], fires:[], news:[], acled:[], crises:[]},
+  suspicious: [],
+  weather: null, aq: null, elev: null, geocode: null, countryInfo: null, worldBank: null,
+  aiAnalysis: null, chatHistory: [],
+  roi: null, roiArea: null,
+  alerts: [], history: [],
+  activePanel: null, isDrawing: false, charts: {},
+  cache: {mil:{}, airports:{}, infra:{}},
+  osintTarget: '', cyberTarget: '',
+};
+
+const PROXY = ['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+async function proxyGet(url) {
+  try { const r = await fetch(url, {signal:AbortSignal.timeout(7000)}); if(r.ok) return r.json(); } catch {}
+  for (const px of PROXY) {
+    try { const r = await fetch(px+encodeURIComponent(url), {signal:AbortSignal.timeout(9000)}); if(r.ok) return r.json(); } catch {}
+  }
+  throw new Error('Fetch failed: ' + url.slice(0,60));
+}
+
+function flagImg(cc) { return cc ? `<img src="https://flagcdn.com/16x12/${cc.toLowerCase()}.png" class="fl" onerror="this.style.display='none'" alt="${cc}">` : ''; }
+function esc(s) { return (s||'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+function timeAgo(ms) { const d=(Date.now()-ms)/1000; return d<60?`${~~d}s ago`:d<3600?`${~~(d/60)}m ago`:d<86400?`${~~(d/3600)}h ago`:`${~~(d/86400)}d ago`; }
+function confPill(val) { return val>=80?`<span class="conf-pill conf-hi">CONF ${val}%</span>`:val>=50?`<span class="conf-pill conf-md">CONF ${val}%</span>`:`<span class="conf-pill conf-lo">CONF ${val}%</span>`; }
+function popup(col,tag,title,rows) {
+  let h=`<div style="background:#060e1a;padding:9px;border-top:2px solid ${col};font-family:monospace;min-width:160px;max-width:240px"><span style="color:${col};font-size:7px;letter-spacing:1px;font-family:'Orbitron',monospace">${tag}</span><br><b style="color:#c8e4ff;font-size:11px">${esc(title)}</b>`;
+  rows.forEach(([k,v])=>{h+=`<br><span style="color:#3d6a90;font-size:7px">${k}:</span> <span style="color:#c8e4ff;font-size:9px">${esc(String(v))}</span>`;});
+  h+=`</div>`;return h;
+}
+
+// ─── MAP INIT ─────────────────────────────────
+function initMap() {
+  S.map = L.map('map', {center:[28.6,77.2], zoom:5, zoomControl:true, attributionControl:false});
+
+  S.esriBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:19, zIndex:1, opacity:0}).addTo(S.map);
+
+ S.esriLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {maxZoom:19, zIndex:3, opacity:0}).addTo(S.map);
+  S.osmBase = L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  {
+    opacity: 0.7,
+    maxZoom: 19,
+    zIndex: 1
+  }
+).addTo(S.map);
+  S.lyG = L.layerGroup().addTo(S.map);
+  Object.keys(S.grps).forEach(k => { S.grps[k] = L.layerGroup().addTo(S.map); });
+  S.drawnItems = new L.FeatureGroup().addTo(S.map);
+  S.drawCtrl = new L.Control.Draw({draw:{rectangle:{shapeOptions:{color:'#00c8f0',fillOpacity:.05,weight:1.5}},polyline:false,circle:false,circlemarker:false,marker:false,polygon:false},edit:{featureGroup:S.drawnItems}});
+  S.map.on(L.Draw.Event.CREATED, e => {
+    S.drawnItems.clearLayers(); S.drawnItems.addLayer(e.layer);
+    S.roi = e.layer.getBounds(); S.isDrawing = false;
+    document.getElementById('draw-hint').style.display = 'none';
+    updateROI(); showToast('ROI selected — click ⚡ ANALYZE or 🤖 AI BRIEF');
+  });
+  S.map.on('mousemove', e => {
+    const la=e.latlng.lat.toFixed(5), ln=e.latlng.lng.toFixed(5);
+    document.getElementById('cpos').textContent = `LAT: ${la}  LON: ${ln}`;
+    document.getElementById('st-cur').textContent = `${la}, ${ln}`;
+  });
+  S.map.on('zoomend', () => document.getElementById('czoom').textContent = `ZOOM: ${S.map.getZoom()} · EPSG:3857`);
+  S.map.on('moveend', () => {
+    // Auto-refresh military data when map moves (if overlay active)
+    if(S.ov.has('mil') && S.map.getZoom() >= 7) fetchMilitary();
+    if(S.ov.has('airports') && S.map.getZoom() >= 6) fetchAirports();
+    if(S.ov.has('infra') && S.map.getZoom() >= 8) fetchInfra();
+  });
+  setLayer('true_color', document.getElementById('adate').value);
+  document.getElementById('czoom').textContent = `ZOOM: ${S.map.getZoom()} · EPSG:3857`;
+}
+
+function tileURL(key, date) { const l=LAYERS[key]; return `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${l.layer}/default/${date}/GoogleMapsCompatible/{z}/{y}/{x}.${l.ext}`; }
+// function setLayer(key, date) {
+//   S.currentLayer = key;
+//   const d = date || document.getElementById('adate').value;
+//   S.lyG.clearLayers();
+
+//   if (key === 'esri_sat') {
+//     // Pure ESRI mode — real satellite, no NASA overlay
+//     S.esriBase.setOpacity(1);
+//     if (S.esriLabels) S.esriLabels.setOpacity(0.7);
+//     document.getElementById('lyr-name').textContent = 'ESRI World Imagery · Real Satellite';
+//     document.getElementById('lyr-date').textContent = 'LIVE · ~1m resolution · ESRI/Maxar/Airbus';
+//     document.getElementById('st-sat').textContent = 'ESRI/Maxar';
+//   } else {
+//     // NASA GIBS science layer — ESRI base hidden, NASA at full original opacity
+//     S.esriBase.setOpacity(0);
+//     if (S.esriLabels) S.esriLabels.setOpacity(0);
+//     L.tileLayer(tileURL(key, d), {
+//       maxZoom: 13, tileSize: 256, opacity: 0.93, zIndex: 2,
+//       errorTileUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+//     }).addTo(S.lyG);
+//     const l = LAYERS[key];
+//     document.getElementById('lyr-name').textContent = l.name;
+//     document.getElementById('lyr-date').textContent = `DATE: ${d} · ${l.res}/px · ${l.sat}`;
+//     document.getElementById('st-sat').textContent = l.sat;
+//   }
+
+//   document.querySelectorAll('.lb[id^="lyr-"]').forEach(b => {
+//     b.classList.toggle('active',
+//       b.id === `lyr-${key}` ||
+//       b.id === `lyr-${key.replace('_color','').replace('_true','').replace('_lights','').replace('_burn','').replace('_day','').replace('ndvi','ndvi')}`
+//     );
+//   });
+// }
+function setLayer(key, date) {
+
+  S.currentLayer = key;
+
+  const d = date || document.getElementById('adate').value;
+
+  // Clear previous dynamic layers
+  S.lyG.clearLayers();
+
+  // Hide ALL bases first
+  if (S.esriBase) S.esriBase.setOpacity(0);
+  if (S.esriLabels) S.esriLabels.setOpacity(0);
+  if (S.osmBase) S.osmBase.setOpacity(0);
+
+  // =========================
+  // ESRI REAL SATELLITE
+  // =========================
+  if (key === 'esri_sat') {
+
+    S.esriBase.setOpacity(1);
+
+    if (S.esriLabels) {
+      S.esriLabels.setOpacity(0.7);
+    }
+
+    document.getElementById('lyr-name').textContent =
+      'ESRI World Imagery · Real Satellite';
+
+    document.getElementById('lyr-date').textContent =
+      'LIVE · ~1m resolution · ESRI/Maxar/Airbus';
+
+    document.getElementById('st-sat').textContent =
+      'ESRI/Maxar';
+  }
+
+  // =========================
+  // NASA GIBS LAYERS
+  // =========================
+  else {
+
+    // Optional faint OSM below NASA
+    S.osmBase.setOpacity(0.75);
+
+    const layer = L.tileLayer(tileURL(key, d), {
+      maxZoom: 13,
+      tileSize: 256,
+      opacity:1,
+      zIndex: 2,
+      errorTileUrl:
+        'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    });
+
+    layer.addTo(S.lyG);
+
+    const l = LAYERS[key];
+
+    document.getElementById('lyr-name').textContent =
+      l.name;
+
+    document.getElementById('lyr-date').textContent =
+      `DATE: ${d} · ${l.res}/px · ${l.sat}`;
+
+    document.getElementById('st-sat').textContent =
+      l.sat;
+  }
+
+  // =========================
+  // ACTIVE BUTTON
+  // =========================
+  document.querySelectorAll('.lb[id^="lyr-"]').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  document.getElementById(`lyr-${key}`)?.classList.add('active');
+}
+// ─── MODULE SWITCH ────────────────────────────
+function switchMod(mod, evt) {
+  S.currentMod = mod;
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  if(evt?.target) evt.target.classList.add('active');
+  ['geo','mil','air','intel','cyber'].forEach(m => {const el=document.getElementById(`sb-${m}`);if(el)el.style.display=m===mod?'':'none';});
+  if(mod==='mil'){showPanel('military');}
+  else if(mod==='air'){showPanel('airtrack');}
+  else if(mod==='intel'){showPanel('events');}
+  else if(mod==='cyber'){showPanel('cyber');}
+  else{showPanel('overview');}
+}
+
+// ─── OVERLAY MANAGER ──────────────────────────
+function setBtn(id, on, label) { const b=document.getElementById(id); if(b){b.classList.toggle('active',on);if(label)b.textContent=label;} }
+
+async function toggleOv(key, fetchFn) {
+  if(S.ov.has(key)){S.grps[key]?.clearLayers();S.ov.delete(key);setBtn(`obtn-${key}`,false);return;}
+  S.ov.add(key);setBtn(`obtn-${key}`,true);document.getElementById('live-w').style.display='block';
+  await fetchFn();
+}
+
+// ─── OVERPASS QUERY (Real OSM military data) ──
+function bboxStr(b) { return `${b.getSouth().toFixed(3)},${b.getWest().toFixed(3)},${b.getNorth().toFixed(3)},${b.getEast().toFixed(3)}`; }
+async function overpass(query) {
+  const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+  const r = await fetch(url, {signal:AbortSignal.timeout(20000)});
+  if(!r.ok) throw new Error('Overpass '+r.status);
+  return r.json();
+}
+
+async function fetchMilitary() {
+  const z = S.map.getZoom();
+  if(z < 5){showToast('Zoom in (level 5+) to load military intelligence from OSM');return;}
+  showToast('Querying OpenStreetMap · Military installations...');setStatus('ana','LOADING MIL...','var(--am)');
+  const b = S.map.getBounds();
+  const bbox = bboxStr(b);
+  const query = `[out:json][timeout:30];(node["military"](${bbox});way["military"](${bbox});relation["military"](${bbox}););out center tags;`;
+  try {
+    const data = await overpass(query);
+    S.data.mil = data.elements || [];
+    S.grps.mil.clearLayers();
+    S.data.mil.forEach(el => {
+      const lat = el.lat || el.center?.lat;
+      const lon = el.lon || el.center?.lon;
+      if(!lat||!lon) return;
+      const mtype = el.tags?.military || 'base';
+      const mt = MIL_TYPES[mtype] || {icon:'🛡',color:'#ff9030',label:'MILITARY FACILITY'};
+      const name = el.tags?.name || el.tags?.['name:en'] || `${mt.label} (unnamed)`;
+      const country = el.tags?.['addr:country'] || el.tags?.country || '';
+      const icao = el.tags?.icao || el.tags?.['aerodrome:icao'] || '';
+      const access = el.tags?.access || 'restricted';
+      const icon = L.divIcon({className:'',html:`<div style="font-size:13px;filter:drop-shadow(0 0 4px ${mt.color});cursor:pointer">${mt.icon}</div>`,iconSize:[13,13],iconAnchor:[6,6]});
+      L.marker([lat,lon],{icon}).bindPopup(popup(mt.color,`⎔ ${mt.label}`,name,[
+        ['TYPE',mtype],['ACCESS',access],['COUNTRY',country||'—'],['ICAO',icao||'—'],
+        ['COORDINATES',`${lat.toFixed(4)}, ${lon.toFixed(4)}`],
+        ['OSM ID',el.id],['SOURCE','OpenStreetMap (crowd-verified)'],['CONFIDENCE','HIGH — OSM community verified']
+      ])).on('click',()=>{showPanel('military');}).addTo(S.grps.mil);
+    });
+    const cnt = S.data.mil.length;
+    document.getElementById('b-mil').textContent = cnt;
+    document.getElementById('st-mil').textContent = `${cnt} sites`;
+    document.getElementById('lw-mil').textContent = `🛡 ${cnt} mil installations`;
+    setBtn('obtn-mil',true,`🛡 MIL BASES (${cnt})`);
+    setStatus('ana',`${cnt} MIL SITES LOADED`,'var(--gr)');
+    showToast(`${cnt} real military installations from OpenStreetMap`);
+    if(S.activePanel==='military') renderPanel('military');
+    if(cnt>0) addAlert('MILITARY','OSM Overpass',`${cnt} military installations in viewport`,'am');
+  } catch(e) { setStatus('ana','OSM ERROR','var(--rd)'); showToast('OSM Overpass: '+e.message); }
+}
+
+async function fetchAirports() {
+  const z = S.map.getZoom();
+  if(z < 4){showToast('Zoom in (level 4+) to load airfield data');return;}
+  showToast('Querying OpenStreetMap · Aerodromes & Airfields...');
+  const b = S.map.getBounds(); const bbox = bboxStr(b);
+  const query = `[out:json][timeout:30];(node["aeroway"="aerodrome"](${bbox});way["aeroway"="aerodrome"](${bbox});node["aeroway"="airstrip"](${bbox});way["aeroway"="airstrip"](${bbox}););out center tags;`;
+  try {
+    const data = await overpass(query);
+    S.data.airports = data.elements || [];
+    S.grps.airports.clearLayers();
+    S.data.airports.forEach(el => {
+      const lat = el.lat || el.center?.lat;
+      const lon = el.lon || el.center?.lon;
+      if(!lat||!lon) return;
+      const name = el.tags?.name || el.tags?.['name:en'] || 'Unnamed Aerodrome';
+      const icao = el.tags?.icao || el.tags?.['aerodrome:icao'] || '—';
+      const iata = el.tags?.iata || '—';
+      const type = el.tags?.['aerodrome:type'] || el.tags?.type || 'civil';
+      const milFlag = el.tags?.military || (name.match(/(air force|airforce|AFB|IAF|PAF|PLAAF|RAF|naval air|army air|military)/i) ? 'yes' : 'no');
+      const col = milFlag==='yes'?'#ff3050':el.tags?.['aerodrome:type']==='international'?'#00c8f0':'#a050ff';
+      const icon2 = L.divIcon({className:'',html:`<div style="font-size:12px;filter:drop-shadow(0 0 3px ${col})">${milFlag==='yes'?'🛫':'✈'}</div>`,iconSize:[12,12],iconAnchor:[6,6]});
+      L.marker([lat,lon],{icon:icon2}).bindPopup(popup(col,milFlag==='yes'?'⎔ MILITARY AIRFIELD':'✈ AERODROME',name,[
+        ['ICAO',icao],['IATA',iata],['TYPE',type],['MILITARY',milFlag==='yes'?'YES — RESTRICTED':'CIVIL'],
+        ['COORDINATES',`${lat.toFixed(4)}, ${lon.toFixed(4)}`],
+        ['OSM ID',el.id],['SOURCE','OpenStreetMap (verified)']
+      ])).addTo(S.grps.airports);
+    });
+    const cnt = S.data.airports.length;
+    const milCnt = S.data.airports.filter(e=>(e.tags?.military||((e.tags?.name||'').match(/(air force|airforce|AFB|IAF|PAF|PLAAF|naval air|military)/i)))).length;
+    document.getElementById('b-ap').textContent = cnt;
+    setBtn('obtn-air',true,`🛫 AIRFIELDS (${cnt})`);
+    showToast(`${cnt} aerodromes loaded (${milCnt} military) — OSM verified`);
+    if(S.activePanel==='airports') renderPanel('airports');
+  } catch(e) { showToast('Airports: '+e.message); }
+}
+
+async function fetchInfra() {
+  if(S.map.getZoom() < 8){showToast('Zoom in (level 8+) to load infrastructure');return;}
+  showToast('Loading critical infrastructure from OSM...');
+  const b = S.map.getBounds(); const bbox = bboxStr(b);
+  const query = `[out:json][timeout:30];(node["power"="plant"](${bbox});way["power"="plant"](${bbox});node["power"="substation"](${bbox});node["man_made"="petroleum_well"](${bbox});way["man_made"="petroleum_well"](${bbox});node["telecom"="exchange"](${bbox});way["bridge"="yes"]["highway"](${bbox}););out center tags;`;
+  try {
+    const data = await overpass(query);
+    S.grps.infra.clearLayers();
+    (data.elements||[]).forEach(el => {
+      const lat = el.lat || el.center?.lat; const lon = el.lon || el.center?.lon; if(!lat||!lon) return;
+      const power = el.tags?.power, telecom = el.tags?.telecom;
+      const col = power?'#ffd840':telecom?'#a050ff':'#ff7020';
+      const lbl = power==='plant'?'POWER PLANT':power==='substation'?'SUBSTATION':telecom?'TELECOM HUB':'CRITICAL INFRA';
+      const name = el.tags?.name||el.tags?.operator||lbl;
+      L.circleMarker([lat,lon],{radius:6,color:col,fillColor:col,fillOpacity:.5,weight:1.5}).bindPopup(popup(col,`⚡ ${lbl}`,name,[['OPERATOR',el.tags?.operator||'—'],['SOURCE','OpenStreetMap'],['COORDINATES',`${lat.toFixed(4)},${lon.toFixed(4)}`]])).addTo(S.grps.infra);
+    });
+    setBtn('obtn-infra',true,`⚡ INFRA (${(data.elements||[]).length})`);
+    showToast(`${(data.elements||[]).length} infrastructure nodes loaded`);
+  } catch(e) { showToast('Infra: '+e.message); }
+}
+
+// ─── OPENSKY ADS-B (Live Aircraft) ────────────
+async function fetchAircraft() {
+  showToast('Querying OpenSky Network · Live ADS-B...');setStatus('ana','FETCHING ADS-B...','var(--am)');
+  const b = S.map.getBounds();
+  const url = `https://opensky-network.org/api/states/all?lamin=${b.getSouth().toFixed(2)}&lomin=${b.getWest().toFixed(2)}&lamax=${b.getNorth().toFixed(2)}&lomax=${b.getEast().toFixed(2)}`;
+  let ok = false;
+  for(const px of ['', ...PROXY]) {
+    try {
+      const u = px ? px+encodeURIComponent(url) : url;
+      const r = await fetch(u, {signal:AbortSignal.timeout(9000)});
+      if(!r.ok) continue;
+      const d = await r.json();
+      S.data.aircraft = (d.states||[]).filter(s=>s&&s[5]!==null&&s[6]!==null);
+      ok = true; break;
+    } catch {}
+  }
+  if(!ok){showToast('OpenSky: unavailable (rate limited or CORS) — try zooming out');setStatus('ana','ADS-B UNAVAIL','var(--rd)');return;}
+  S.suspicious = S.data.aircraft.filter(s => AC_SUSPICIOUS_RULES.some(r=>r.test(s)));
+  renderACMarkers();
+  const cnt = S.data.aircraft.length;
+  const sus = S.suspicious.length;
+  setBtn('obtn-ac',true,`✈ AIRCRAFT (${cnt})`);
+  document.getElementById('b-ac').textContent = cnt;
+  document.getElementById('b-sus').textContent = sus;
+  document.getElementById('st-ac').textContent = `${cnt} AC / ${sus} suspicious`;
+  document.getElementById('lw-ac').textContent = `✈ ${cnt} aircraft (${sus} flagged)`;
+  setStatus('ana',`${cnt} AIRCRAFT LIVE`,'var(--gr)');
+  if(sus>0) addAlert('AIRCRAFT','OpenSky ADS-B',`${sus} suspicious aircraft patterns detected`,'rd');
+  showToast(`${cnt} live aircraft (${sus} flagged suspicious) — OpenSky ADS-B`);
+  if(S.activePanel==='airtrack'||S.activePanel==='suspicious') renderPanel(S.activePanel);
+}
+
+function renderACMarkers() {
+  S.grps.ac.clearLayers();
+  S.data.aircraft.slice(0,400).forEach(s => {
+    const lat=s[6], lon=s[5]; if(!lat||!lon) return;
+    const hdg=s[10]||0, alt=(s[7]||0).toFixed(0), spd=(s[9]||0).toFixed(0);
+    const cs=(s[1]||'').trim()||'N/A', country=s[2]||'—';
+    const isSus = AC_SUSPICIOUS_RULES.some(r=>r.test(s));
+    const susReasons = AC_SUSPICIOUS_RULES.filter(r=>r.test(s)).map(r=>r.label);
+    const isMil = AC_SUSPICIOUS_RULES.find(r=>r.id==='mil_callsign'&&r.test(s));
+    const col = isSus&&!isMil?'#ff3050':isMil?'#ffd840':'#00c8b0';
+    const icon = L.divIcon({className:'',html:`<div style="transform:rotate(${hdg}deg);font-size:12px;color:${col};filter:drop-shadow(0 0 4px ${col});line-height:1">✈</div>`,iconSize:[12,12],iconAnchor:[6,6]});
+    const rows = [['CALLSIGN',cs||'NONE — SUSPICIOUS'],['COUNTRY',country],['ALT',alt+'m'],['SPEED',spd+' km/h'],['HEADING',hdg+'°'],['ON GROUND',s[8]?'YES':'NO'],['TRANSPONDER',s[14]||'Normal']];
+    if(susReasons.length) rows.push(['⚠ FLAGS',susReasons.join(', ')]);
+    rows.push(['SOURCE','OpenSky Network ADS-B'],['TIMESTAMP',new Date((s[3]||Date.now()/1000)*1000).toUTCString().slice(0,-4)+' UTC']);
+    L.marker([lat,lon],{icon}).bindPopup(popup(col,isSus?'⚠ FLAGGED AIRCRAFT':'✈ CIVIL AIRCRAFT',cs||'NO CALLSIGN',rows)).addTo(S.grps.ac);
+  });
+}
+
+// ─── USGS EARTHQUAKES ─────────────────────────
+async function fetchEQ() {
+  showToast('Loading USGS earthquakes M4.5+ past 7 days...');
+  try {
+    const data = await proxyGet('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson');
+    S.data.quakes = data.features || [];
+    S.grps.eq.clearLayers();
+    S.data.quakes.forEach(q => {
+      const p=q.properties, c=q.geometry.coordinates;
+      const mag=p.mag, lat=c[1], lon=c[0], depth=c[2].toFixed(0);
+      if(!lat||!lon) return;
+      const col = mag>=7?'#ff0000':mag>=6?'#ff4400':mag>=5?'#ff8800':'#ffcc00';
+      const r = Math.min(22,Math.max(4,mag*3.2));
+      L.circleMarker([lat,lon],{radius:r,color:col,fillColor:col,fillOpacity:.4,weight:1.5})
+        .bindPopup(popup(col,`🌍 M${mag.toFixed(1)} EARTHQUAKE`,p.place,[
+          ['MAGNITUDE',mag.toFixed(1)],['DEPTH',depth+' km'],['TIME',new Date(p.time).toUTCString().slice(0,-4)+' UTC'],
+          ['TYPE',p.type||'earthquake'],['SOURCE','USGS Earthquake Hazards Program'],
+          ['USGS LINK',p.url]
+        ])).addTo(S.grps.eq);
+    });
+    const cnt=S.data.quakes.length;
+    document.getElementById('b-eq').textContent=cnt;
+    document.getElementById('lw-eq').textContent=`🌍 ${cnt} M4.5+ quakes`;
+    setBtn('obtn-eq',true,`🌍 QUAKES (${cnt})`);
+    showToast(`${cnt} earthquakes M4.5+ past week — USGS`);
+    if(S.activePanel==='quakes') renderPanel('quakes');
+  } catch(e){showToast('USGS: '+e.message);}
+}
+
+// ─── NASA FIRMS (Fire/Thermal) ────────────────
+async function fetchFIRMS() {
+  const k = S.keys.firms;
+  if(!k){showToast('⚙ Add NASA FIRMS key in API KEYS — free at firms.modaps.eosdis.nasa.gov/api/map_key/');return;}
+  const b = S.map.getBounds();
+  showToast('Loading VIIRS fire hotspots...');
+  try {
+    const url=`https://firms.modaps.eosdis.nasa.gov/api/area/csv/${k}/VIIRS_NOAA20_NRT/${b.getWest().toFixed(2)},${b.getSouth().toFixed(2)},${b.getEast().toFixed(2)},${b.getNorth().toFixed(2)}/2`;
+    const r = await fetch(url); if(!r.ok) throw new Error('FIRMS '+r.status);
+    const txt = await r.text(); const lines = txt.trim().split('\n');
+    const h=lines[0].split(',');
+    const li=h.indexOf('latitude'),lo=h.indexOf('longitude'),ci=h.indexOf('confidence'),fi=h.indexOf('frp'),di=h.indexOf('acq_date');
+    let cnt=0; S.grps.fire.clearLayers();
+    lines.slice(1).forEach(ln=>{
+      if(!ln.trim())return; const f=ln.split(',');
+      const lat=parseFloat(f[li]),lon=parseFloat(f[lo]),conf=f[ci]||'n',frp=parseFloat(f[fi])||0,dt=f[di]||'';
+      if(isNaN(lat)||isNaN(lon))return;
+      const col=conf==='high'?'#ff1100':conf==='nominal'?'#ff5500':'#ff9900';
+      const r2=Math.min(14,Math.max(3,Math.sqrt(frp)*1.4));
+      L.circleMarker([lat,lon],{radius:r2,color:col,fillColor:col,fillOpacity:.75,weight:1})
+        .bindPopup(popup(col,'🔥 THERMAL ANOMALY (VIIRS NOAA-20)',`Hotspot ${lat.toFixed(4)},${lon.toFixed(4)}`,[
+          ['DATE',dt],['FRP',frp.toFixed(1)+' MW (Fire Radiative Power)'],['CONFIDENCE',conf.toUpperCase()],
+          ['INTEL NOTE',frp>100?'HIGH FRP — possible industrial or large-scale fire':'Standard thermal anomaly — agricultural/wildfire/industrial'],
+          ['SOURCE','NASA FIRMS · VIIRS NOAA-20 Near Real Time'],['CONFIDENCE LEVEL','HIGH (satellite-derived)']
+        ])).addTo(S.grps.fire);cnt++;
+    });
+    setBtn('obtn-fire',true,`🔥 FIRE (${cnt})`);
+    showToast(`${cnt} VIIRS thermal hotspots — NASA FIRMS NOAA-20`);
+    if(cnt>0) addAlert('THERMAL','NASA FIRMS',`${cnt} thermal anomalies in viewport`,'am');
+  } catch(e){showToast('FIRMS: '+e.message);}
+}
+
+// ─── GDELT (Geopolitical Events) ─────────────
+async function fetchGDELT() {
+  showToast('Querying GDELT v2 · Geopolitical events...');
+  setStatus('ana', 'GDELT...', 'var(--am)');
+
+  const center = S.roi ? S.roi.getCenter() : S.map.getCenter();
+  const q = `radius:200km@${center.lat.toFixed(2)},${center.lng.toFixed(2)}`;
+
+  const url =
+    `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(q)}` +
+    `&mode=artgeo&maxrecords=100&format=json&timespan=48h`;
+
+  try {
+    const data = await proxyGet(url);
+
+    S.data.events = (data.articles || []).filter(
+      a => a.geography?.lat || a.geography?.lon
+    );
+
+    S.grps.ev.clearLayers();
+
+    let cnt = 0;
+
+    S.data.events.forEach(a => {
+      const lat = parseFloat(a.geography?.lat);
+      const lon = parseFloat(a.geography?.lon);
+
+      if (isNaN(lat) || isNaN(lon)) return;
+
+      const tone = parseFloat(a.tone || 0);
+
+      const col =
+        tone < -6 ? '#ff1100' :
+        tone < -3 ? '#ff5500' :
+        tone < 0  ? '#ff9900' :
+                     '#00c8f0';
+
+      const toneLabel =
+        tone < -5 ? 'EXTREMELY NEGATIVE' :
+        tone < -2 ? 'NEGATIVE' :
+        tone < 0  ? 'SLIGHTLY NEGATIVE' :
+                     'NEUTRAL';
+
+      L.circleMarker([lat, lon], {
+        radius: 5,
+        color: col,
+        fillColor: col,
+        fillOpacity: 0.7,
+        weight: 1.2
+      })
+      .bindPopup(
+        popup(
+          col,
+          '⚡ GDELT GEOPOLITICAL EVENT',
+          (a.title || '—').slice(0, 80),
+          [
+            ['TONE', `${tone.toFixed(2)} (${toneLabel})`],
+            ['DOMAIN', a.domain || '—'],
+            ['LANGUAGE', a.language || '—'],
+            ['COUNTRY', a.sourcecountry || '—'],
+            ['LOCATION', a.geography?.fullname || '—'],
+            ['SEENDATE', a.seendate || '—'],
+            ['SOURCE', 'GDELT Project v2 · 15-min real-time update'],
+            ['CONFIDENCE', 'MEDIUM — media-derived']
+          ]
+        )
+      )
+      .addTo(S.grps.ev);
+
+      cnt++;
+    });
+
+    document.getElementById('b-ev').textContent = cnt;
+    document.getElementById('lw-ev').textContent = `🔴 ${cnt} GDELT events`;
+
+    setBtn('obtn-ev', true, `🔴 EVENTS (${cnt})`);
+
+    setStatus('ana', `${cnt} EVENTS LOADED`, 'var(--gr)');
+
+    showToast(`${cnt} geo-tagged events in 200km radius — GDELT 48h`);
+
+    updateTicker(S.data.events);
+
+    if (S.activePanel === 'events') {
+      renderPanel('events');
+    }
+
+  } catch (e) {
+    setStatus('ana', 'GDELT ERR', 'var(--rd)');
+    showToast('GDELT: ' + e.message);
+  }
+}
+// ─── SEA/RAIL OVERLAYS ────────────────────────
+function toggleSea(){
+  if(S.ov.has('sea')){if(S.seaL)S.map.removeLayer(S.seaL);S.ov.delete('sea');setBtn('obtn-sea',false,'🌊 SEA');return;}
+  S.seaL=L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,zIndex:10,opacity:.85});S.map.addLayer(S.seaL);S.ov.add('sea');setBtn('obtn-sea',true,'🌊 SEA ✓');showToast('OpenSeaMap — shipping lanes, ports, maritime hazards');
+}
+function toggleRail(){
+  if(S.ov.has('rail')){if(S.railL)S.map.removeLayer(S.railL);S.ov.delete('rail');setBtn('obtn-rail',false,'🚆 RAIL');return;}
+  S.railL=L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',{maxZoom:19,zIndex:10,opacity:.85,subdomains:['a','b','c']});S.map.addLayer(S.railL);S.ov.add('rail');setBtn('obtn-rail',true,'🚆 RAIL ✓');showToast('OpenRailwayMap — rail infrastructure intelligence');
+}
+
+// ─── ROI ──────────────────────────────────────
+function startROI(){if(S.isDrawing)return;S.isDrawing=true;S.map.addControl(S.drawCtrl);new L.Draw.Rectangle(S.map,S.drawCtrl.options.draw.rectangle).enable();document.getElementById('draw-hint').style.display='block';}
+function clearAll(){
+  S.drawnItems.clearLayers();Object.values(S.grps).forEach(g=>g?.clearLayers());
+  if(S.seaL)S.map.removeLayer(S.seaL);if(S.railL)S.map.removeLayer(S.railL);
+  S.roi=null;S.isDrawing=false;S.ov.clear();S.data.mil=[];S.data.aircraft=[];S.data.events=[];S.data.quakes=[];S.data.airports=[];
+  document.getElementById('roi-w').style.display='none';document.getElementById('live-w').style.display='none';
+  document.getElementById('st-roi').textContent='NOT SELECTED';document.getElementById('draw-hint').style.display='none';
+  document.getElementById('st-ac').textContent='—';document.getElementById('st-mil').textContent='—';
+  ['obtn-mil','obtn-air','obtn-ac','obtn-ev','obtn-eq','obtn-fire','obtn-infra','obtn-sea','obtn-rail'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.remove('active');});
+  showToast('All overlays cleared');
+}
+function updateROI(){if(!S.roi)return;const b=S.roi;const la=Math.abs(b.getNorth()-b.getSouth()),lo=Math.abs(b.getEast()-b.getWest());const a=(la*111)*(lo*111*Math.cos(b.getCenter().lat*Math.PI/180));S.roiArea=a.toFixed(2);document.getElementById('roi-area').textContent=`${S.roiArea} km²`;document.getElementById('roi-bbox').textContent=`SW(${b.getSouth().toFixed(3)},${b.getWest().toFixed(3)}) NE(${b.getNorth().toFixed(3)},${b.getEast().toFixed(3)})`;document.getElementById('roi-w').style.display='block';document.getElementById('st-roi').textContent=`${S.roiArea} km²`;}
+
+// ─── SEARCH ───────────────────────────────────
+let srchT;
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('sinput').addEventListener('input',e=>{clearTimeout(srchT);const q=e.target.value.trim();if(q.length<3){document.getElementById('sres').style.display='none';return;}srchT=setTimeout(()=>doSearch(q),400);});
+  document.getElementById('sinput').addEventListener('keydown',e=>{if(e.key==='Enter'){const f=document.querySelector('.sri');if(f)f.click();}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.srch'))document.getElementById('sres').style.display='none';});
+});
+async function doSearch(q){
+  const m=q.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/);if(m){goTo(parseFloat(m[1]),parseFloat(m[2]),`${m[1]}, ${m[2]}`);return;}
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=7`,{headers:{'Accept-Language':'en'}});const d=await r.json();const el=document.getElementById('sres');if(!d.length){el.style.display='none';return;}el.innerHTML=d.map(x=>`<div class="sri" onclick="goTo(${x.lat},${x.lon},'${esc(x.display_name.split(',')[0])}')">${esc(x.display_name.slice(0,72))}</div>`).join('');el.style.display='block';}catch{}
+}
+function goTo(lat,lon,name){S.map.flyTo([lat,lon],9,{duration:1.4});document.getElementById('sinput').value=name;document.getElementById('sres').style.display='none';showToast(`→ ${name}`);}
+
+// ─── DATA FETCHERS ────────────────────────────
+async function fetchWeather(lat,lon){const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,et0_fao_evapotranspiration&past_days=30&timezone=auto&forecast_days=3`);if(!r.ok)throw new Error('Weather');return r.json();}
+async function fetchElev(lat,lon){try{const r=await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`);const d=await r.json();return d.elevation?.[0]??null;}catch{return null;}}
+async function fetchAQ(lat,lon){try{const r=await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5,nitrogen_dioxide,ozone&forecast_days=1&timezone=auto`);return r.json();}catch{return null;}}
+async function fetchGeocode(lat,lon){try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`,{headers:{'Accept-Language':'en'}});return r.json();}catch{return null;}}
+async function fetchCountry(cc){try{const r=await fetch(`https://restcountries.com/v3.1/alpha/${cc}`);const d=await r.json();return d[0]||null;}catch{return null;}}
+async function fetchWB(cc){if(!cc||cc.length!==2)return null;const iso=cc.toUpperCase();const res={};await Promise.allSettled(['MS.MIL.XPND.GD.ZS','NY.GDP.MKTP.CD','SP.POP.TOTL','NY.GDP.PCAP.CD'].map(async(id,i)=>{try{const r=await fetch(`https://api.worldbank.org/v2/country/${iso}/indicator/${id}?format=json&mrv=5&per_page=5`);const d=await r.json();const v=(d[1]||[]).find(x=>x.value!=null);if(v)res[['mil','gdp','pop','gdppc'][i]]={value:v.value,year:v.date};}catch{}}));return res;}
+async function fetchGuardianNews(q){const key=S.keys.guardian||'test';const url=`https://content.guardianapis.com/search?api-key=${key}&q=${encodeURIComponent(q)}&show-fields=headline,trailText,thumbnail,byline,wordcount&page-size=20&order-by=newest&section=world`;try{const r=await fetch(url);if(!r.ok)return[];const d=await r.json();return d.response?.results||[];}catch{return[];}}
+async function fetchGDELTNews(q){const url=`https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(q)}&mode=artlist&maxrecords=20&format=json&timespan=24h`;try{const d=await proxyGet(url);return d.articles||[];}catch{return[];}}
+async function fetchReliefWeb(){const url=`https://api.reliefweb.int/v1/disasters?appname=geoint&limit=15&fields[include][]=name&fields[include][]=status&fields[include][]=country&fields[include][]=date&fields[include][]=type&sort[]=date:desc`;try{const d=await proxyGet(url);return d.data||[];}catch{return[];}}
+async function fetchACLED(bbox){if(!S.keys.acledKey||!S.keys.acledEmail)return[];try{const url=`https://api.acleddata.com/acled/read?key=${S.keys.acledKey}&email=${encodeURIComponent(S.keys.acledEmail)}&limit=100&fields=event_date|event_type|actor1|actor2|location|latitude|longitude|fatalities|country|notes&format=json&event_date_where=BETWEEN&event_date=${new Date(Date.now()-30*864e5).toISOString().slice(0,10)}|${new Date().toISOString().slice(0,10)}`;const d=await proxyGet(url);return d.data||[];}catch{return[];}}
+
+// ─── CORE ANALYSIS ────────────────────────────
+async function runFullAnalysis(){
+  const c=S.roi?S.roi.getCenter():S.map.getCenter();const lat=c.lat.toFixed(4),lon=c.lng.toFixed(4);
+  setStatus('ana','ANALYZING...','var(--am)');showToast('Running multi-source analysis...');
+  try{
+    const[w,e,a,g]=await Promise.all([fetchWeather(lat,lon).catch(()=>null),fetchElev(lat,lon).catch(()=>null),fetchAQ(lat,lon).catch(()=>null),fetchGeocode(lat,lon).catch(()=>null)]);
+    S.weather=w;S.elev=e;S.aq=a;S.geocode=g;
+    const cc=g?.address?.country_code;
+    if(cc){const[ci,wb]=await Promise.all([fetchCountry(cc).catch(()=>null),fetchWB(cc).catch(()=>null)]);S.countryInfo=ci;S.worldBank=wb;}
+    // Fetch military data in ROI
+    if(S.roi){await fetchMilitary();await fetchAirports();}
+    logHistory(lat,lon);setStatus('ana','READY','var(--gr)');showToast('Analysis complete — open panels for detail');showPanel('intel-area');
+  }catch(e){setStatus('ana','ERROR','var(--rd)');showToast('Error: '+e.message);}
+}
+
+async function runLive() {
+  showToast('Activating all live intelligence feeds...');
+  setStatus('ana', 'LIVE ACTIVE', 'var(--tl)');
+
+  await Promise.allSettled([
+    fetchAircraft(),
+    fetchGDELT(),
+    fetchEQ()
+  ]);
+
+  const overlays = {
+    'obtn-ac': 'ac',
+    'obtn-ev': 'ev',
+    'obtn-eq': 'eq'
+  };
+
+  Object.entries(overlays).forEach(([id, layer]) => {
+    S.ov.add(layer);
+    document.getElementById(id)?.classList.add('active');
+  });
+
+  const liveWidget = document.getElementById('live-w');
+
+  if (liveWidget) {
+    liveWidget.style.display = 'block';
+  }
+
+  // Prevent duplicate intervals
+  if (S.aircraftInterval) {
+    clearInterval(S.aircraftInterval);
+  }
+
+  S.aircraftInterval = setInterval(() => {
+    fetchAircraft();
+  }, 60000);
+}
+
+// ─── AI INTEGRATION ───────────────────────────
+async function callAI(prompt){
+  // Try Claude (works natively in claude.ai)
+  try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});if(r.ok){const d=await r.json();return d.content?.[0]?.text||'';}}catch{}
+  // Groq fallback
+  const gk=S.keys.groq;if(!gk)throw new Error('No AI key. Add Groq key in ⚙ API KEYS (free at console.groq.com)');
+  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${gk}`},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:2500,temperature:.1,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(`Groq ${r.status}: ${e?.error?.message||'check key'}`);}
+  const d=await r.json();return d.choices?.[0]?.message?.content||'';
+}
+
+function buildIntelPrompt(lat,lon,extra=''){
+  const w=S.weather?.daily||{};
+  const avgMax=w.temperature_2m_max?(w.temperature_2m_max.slice(-30).reduce((a,b)=>a+b,0)/30).toFixed(1):'N/A';
+  const totalP=w.precipitation_sum?w.precipitation_sum.slice(-30).reduce((a,b)=>a+b,0).toFixed(1):'N/A';
+  const maxWind=w.windspeed_10m_max?Math.max(...w.windspeed_10m_max.slice(-30)).toFixed(0):'N/A';
+  const aq=S.aq?.hourly||{};
+  const g=S.geocode?.address||{};const ci=S.countryInfo;const wb=S.worldBank;
+  const milCount=S.data.mil.length;
+  const airportCount=S.data.airports.length;
+  const eventCount=S.data.events.length;
+  const aircraftCount=S.data.aircraft.length;
+  const susCount=S.suspicious.length;
+  const quakeCount=S.data.quakes.length;
+  const milTypes=[...new Set(S.data.mil.map(m=>m.tags?.military||'base'))].join(', ');
+  const topEvents=S.data.events.slice(0,5).map(e=>`"${(e.title||'').slice(0,60)}" (tone:${e.tone})`).join('\n');
+  const topAircraft=S.suspicious.slice(0,5).map(a=>`${(a[1]||'NONE').trim()} from ${a[2]||'?'} at ${(a[7]||0).toFixed(0)}m`).join('\n');
+  return `You are a senior GEOINT/IMINT/OSINT analyst with military intelligence background. All data below is REAL, sourced from verified public APIs with timestamps. Provide expert analysis. Be specific, cite the real numbers provided.
+
+═══ TARGET PROFILE ═══
+COORDINATES: ${lat}°N, ${lon}°E
+LOCATION: ${S.geocode?.display_name||`${lat}, ${lon}`}
+ADMIN: ${g.city||g.town||g.village||'—'}, ${g.state||'—'}, ${g.country||'—'}
+ELEVATION: ${S.elev!==null?S.elev+' m ASL':'Unknown'}
+ROI AREA: ${S.roiArea||'N/A'} km²
+ANALYSIS PERIOD: ${document.getElementById('bdate').value} → ${document.getElementById('adate').value}
+SAT LAYER: ${LAYERS[S.currentLayer]?.name||'TrueColor'}
+
+═══ REAL SENSOR DATA (Open-Meteo) ═══
+Avg Max Temp (30d): ${avgMax}°C | Total Precip (30d): ${totalP}mm | Max Wind: ${maxWind} km/h
+PM2.5: ${aq.pm2_5?.[0]?.toFixed(1)||'N/A'} µg/m³ | NO2: ${aq.nitrogen_dioxide?.[0]?.toFixed(1)||'N/A'} µg/m³
+
+═══ REAL MILITARY INTELLIGENCE (OSM Overpass) ═══
+Military installations in area: ${milCount} (types: ${milTypes||'—'})
+Airports/Airfields in area: ${airportCount}
+${milCount>0?S.data.mil.slice(0,5).map(m=>`  - ${m.tags?.name||'Unnamed'} (${m.tags?.military||'base'})`).join('\n'):'No military installations in current view'}
+
+═══ REAL LIVE AIR TRAFFIC (OpenSky ADS-B) ═══
+Aircraft in area: ${aircraftCount}
+SUSPICIOUS/FLAGGED: ${susCount}
+${susCount>0?'Flagged aircraft:\n'+topAircraft:'No suspicious aircraft detected'}
+
+═══ REAL GEOPOLITICAL EVENTS (GDELT 48h) ═══
+Events in 200km radius: ${eventCount}
+${topEvents||'No geo-tagged events in radius'}
+
+═══ REAL SEISMIC DATA (USGS) ═══
+Earthquakes M4.5+ past week: ${quakeCount}
+${S.data.quakes.slice(0,3).map(q=>`M${q.properties.mag.toFixed(1)} — ${q.properties.place}`).join('\n')||'No significant seismic activity'}
+
+═══ COUNTRY INTELLIGENCE (REST Countries + World Bank) ═══
+Country: ${ci?.name?.common||g.country||'—'}
+Population: ${ci?.population?(ci.population/1e6).toFixed(1)+'M':'N/A'}
+GDP: ${wb?.gdp?.value?'$'+(wb.gdp.value/1e12).toFixed(2)+'T':'N/A'}
+Military Spend: ${wb?.mil?.value?wb.mil.value.toFixed(2)+'% of GDP':'N/A'}
+Bordering countries: ${(ci?.borders||[]).join(', ')||'—'}
+
+${extra?'═══ ADDITIONAL CONTEXT ═══\n'+extra:''}
+
+Provide a comprehensive GEOINT intelligence brief covering:
+1. Site Identification & Strategic Significance
+2. Military Activity Assessment (based on real OSM + aircraft + GDELT data)
+3. Environmental & Operational Conditions
+4. Threat Assessment & Risk Rating (0-100)
+5. Changes Detected (between ${document.getElementById('bdate').value} and ${document.getElementById('adate').value})
+6. Analyst Recommendations
+7. Data Source Confidence Assessment
+
+Be specific — cite the real numbers. Format clearly with headers.`;
+}
+
+async function runAI(){
+  const c=S.roi?S.roi.getCenter():S.map.getCenter();
+  showToast('Generating AI intelligence briefing...');setStatus('ana','AI BRIEF...','var(--pu)');
+  showPanel('ai');document.getElementById('pbody').innerHTML=`<div class="ldb"><div class="sp"></div> Gathering all real sensor data... This may take 15-30 seconds.</div>`;
+  try{
+    const lat=c.lat.toFixed(4),lon=c.lng.toFixed(4);
+    const[w,e,a,g]=await Promise.all([fetchWeather(lat,lon).catch(()=>null),fetchElev(lat,lon).catch(()=>null),fetchAQ(lat,lon).catch(()=>null),fetchGeocode(lat,lon).catch(()=>null)]);
+    S.weather=w;S.elev=e;S.aq=a;S.geocode=g;
+    const cc=g?.address?.country_code;
+    if(cc){const[ci,wb]=await Promise.all([fetchCountry(cc).catch(()=>null),fetchWB(cc).catch(()=>null)]);S.countryInfo=ci;S.worldBank=wb;}
+    if(!S.data.mil.length&&S.map.getZoom()>=5) await fetchMilitary().catch(()=>{});
+    if(!S.data.events.length) await fetchGDELT().catch(()=>{});
+    const brief=await callAI(buildIntelPrompt(lat,lon));
+    S.aiAnalysis={text:brief,lat,lon,ts:Date.now()};
+    logHistory(lat,lon);renderPanel('ai');setStatus('ana','BRIEF READY','var(--gr)');
+    showToast('AI intelligence brief generated');
+  }catch(err){setStatus('ana','ERROR','var(--rd)');showToast(err.message);renderPanel('ai');}
+}
+
+// ─── NEWS FETCH ───────────────────────────────
+async function loadNews(){
+  const q=document.getElementById('nq-in')?.value.trim()||'military conflict border security';
+  showToast(`Fetching: "${q}"...`);setStatus('ana','NEWS...','var(--or)');
+  const[ga,gd]=await Promise.allSettled([fetchGuardianNews(q),fetchGDELTNews(q)]);
+  S.data.news=ga.value||[];const gdelt=gd.value||[];
+  updateTicker([...S.data.news.map(a=>({title:a.webTitle})),...gdelt]);
+  document.getElementById('b-news').textContent=S.data.news.length+gdelt.length;
+  setStatus('ana','NEWS READY','var(--gr)');showToast(`${S.data.news.length} Guardian + ${gdelt.length} GDELT`);
+  renderPanel('news');
+}
+
+function updateTicker(arts){const h=(arts||[]).map(a=>a.webTitle||a.title||'').filter(Boolean).slice(0,20);if(h.length)document.getElementById('ttext').textContent=h.join('   ·   ');}
+
+// ─── ALERTS & HISTORY ─────────────────────────
+function addAlert(type,src,msg,sev){S.alerts.unshift({id:Date.now(),type,src,msg,sev,ts:new Date().toISOString()});if(S.alerts.length>80)S.alerts.pop();const el=document.getElementById('abadge');if(el)el.textContent=Math.min(S.alerts.length,99);}
+function logHistory(lat,lon){S.history.unshift({id:Date.now(),lat,lon,bdate:document.getElementById('bdate').value,adate:document.getElementById('adate').value,layer:S.currentLayer,ts:new Date().toISOString(),name:S.geocode?.display_name?.split(',')[0]||`${lat},${lon}`,flag:S.geocode?.address?.country_code||''});if(S.history.length>30)S.history.pop();}
+
+// ─── CHARTS ───────────────────────────────────
+function mkChart(id,type,labels,datasets,title){const cv=document.getElementById(id);if(!cv)return;if(S.charts[id]){S.charts[id].destroy();delete S.charts[id];}const opts={responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'rgba(61,106,144,.8)',font:{size:8,family:'Share Tech Mono'}}},title:title?{display:true,text:title,color:'rgba(61,106,144,.6)',font:{size:8,family:'Orbitron'}}:{display:false}},animation:{duration:500}};if(['bar','line'].includes(type))opts.scales={x:{ticks:{color:'rgba(61,106,144,.6)',font:{size:7},maxRotation:0},grid:{color:'rgba(14,30,48,.8)'}},y:{ticks:{color:'rgba(61,106,144,.6)',font:{size:7}},grid:{color:'rgba(14,30,48,.8)'}}};else if(type==='radar')opts.scales={r:{grid:{color:'rgba(14,30,48,.9)'},pointLabels:{color:'rgba(61,106,144,.8)',font:{size:8}},ticks:{display:false}}};S.charts[id]=new Chart(cv.getContext('2d'),{type,data:{labels,datasets},options:opts});}
+function killCharts(){Object.values(S.charts).forEach(c=>c.destroy());S.charts={};}
+
+// ─── PANELS ───────────────────────────────────
+const PTITLES={overview:'GEOINT OVERVIEW',intel:' AREA INTELLIGENCE','intel-area':'AREA INTELLIGENCE',change:'CHANGE DETECTION',environ:'ENVIRONMENTAL DATA',ai:'AI INTELLIGENCE BRIEF',military:'MILITARY INSTALLATIONS (OSM)',airports:'AIRFIELDS & AERODROMES (OSM)',infra:'CRITICAL INFRASTRUCTURE',airtrack:'LIVE AIR TRAFFIC',suspicious:'SUSPICIOUS AIRCRAFT',events:'GDELT EVENTS',news:'NEWS INTELLIGENCE',quakes:'SEISMIC ACTIVITY',crisis:'HUMANITARIAN CRISIS',country:'COUNTRY INTELLIGENCE',cyber:'CYBER THREAT INTEL',osint:'OSINT TOOLS',actors:'APT THREAT ACTORS',history:'MISSION LOG',sources:'DATA SOURCES',settings:'CONFIGURATION',alerts:'ALERT CENTER'};
+
+function showPanel(k){document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));const n=document.getElementById(`nav-${k}`);if(n)n.classList.add('active');S.activePanel=k;document.getElementById('ptitle').textContent=PTITLES[k]||k.toUpperCase();document.getElementById('rp').classList.add('open');renderPanel(k);}
+function closePanel(){document.getElementById('rp').classList.remove('open');S.activePanel=null;}
+function renderPanel(k){const body=document.getElementById('pbody');killCharts();body.innerHTML='';({overview:pOverview,'intel-area':pIntel,change:pChange,environ:pEnv,ai:pAI,military:pMilitary,airports:pAirports,infra:pInfra,airtrack:pAirtrack,suspicious:pSuspicious,events:pEvents,news:pNews,quakes:pQuakes,crisis:pCrisis,country:pCountry,cyber:pCyber,osint:pOSINT,actors:pActors,history:pHistory,sources:pSources,settings:pSettings,alerts:pAlerts}[k]||(()=>body.innerHTML='<div class="ldb">Panel not found</div>'))(body);}
+
+function pOverview(body){
+  const ac=S.data.aircraft.length,mil=S.data.mil.length,ev=S.data.events.length,eq=S.data.quakes.length,sus=S.suspicious.length;
+  body.innerHTML=`<div class="stit">LIVE INTELLIGENCE SUMMARY</div>
+  <div class="ig3"><div class="ic"><div class="lbl">AIRCRAFT LIVE</div><div class="val tl">${ac}</div><div style="font-size:8px;color:var(--ts);margin-top:2px">${sus>0?`<span style="color:var(--rd)">${sus} SUSPICIOUS</span>`:'All nominal'}</div></div><div class="ic"><div class="lbl">MIL SITES (OSM)</div><div class="val am">${mil}</div><div style="font-size:8px;color:var(--ts);margin-top:2px">Real verified data</div></div><div class="ic"><div class="lbl">GDELT EVENTS</div><div class="val rd">${ev}</div><div style="font-size:8px;color:var(--ts);margin-top:2px">48h · 200km radius</div></div><div class="ic"><div class="lbl">EARTHQUAKES</div><div class="val am">${eq}</div><div style="font-size:8px;color:var(--ts);margin-top:2px">M4.5+ past week</div></div><div class="ic"><div class="lbl">NEWS ARTICLES</div><div class="val or">${S.data.news.length}</div><div style="font-size:8px;color:var(--ts);margin-top:2px">Guardian + GDELT</div></div><div class="ic"><div class="lbl">ALERTS</div><div class="val rd">${S.alerts.length}</div></div></div>
+  <div class="stit">QUICK ACTIONS</div>
+  <button class="fb fb-a" onclick="runFullAnalysis()">⚡ FULL AREA ANALYSIS</button>
+  <button class="fb fb-pu" onclick="runAI()">🤖 AI INTELLIGENCE BRIEF</button>
+  <button class="fb fb-am" onclick="toggleOv('mil',fetchMilitary)">🛡 LOAD REAL MILITARY BASES (OSM)</button>
+  <button class="fb fb-tl" onclick="toggleOv('ac',fetchAircraft)">✈ LOAD LIVE AIRCRAFT (OpenSky)</button>
+  <button class="fb fb-rd" onclick="toggleOv('ev',fetchGDELT)">🔴 LOAD GDELT EVENTS</button>
+  <button class="fb fb-g" onclick="toggleOv('eq',fetchEQ)">🌍 LOAD EARTHQUAKE DATA (USGS)</button>
+  <div class="stit">INTELLIGENCE HOT ZONES</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">
+  ${[['India–Pakistan LOC',34.0,74.5],['Ukraine Frontline',48.3,36.2],['Taiwan Strait',24.0,120.5],['Gaza Strip',31.3,34.4],['Strait of Hormuz',26.5,56.5],['North Korea DMZ',38.0,127.0],['South China Sea',15.0,114.0],['Kashmir Valley',34.5,76.0],['Donbas Ukraine',47.9,37.8],['Idlib Syria',35.9,36.6],['Ethiopia Conflict',14.0,39.0],['Sudan Civil War',15.5,32.5],['Myanmar Border',21.5,97.0],['Venezuela Border',7.0,-67.0],['Natanz Nuclear IR',33.72,51.72],['Pyongyang DPRK',39.01,125.75]].map(([n,la,lo])=>`<button class="fb fb-o" onclick="goTo(${la},${lo},'${esc(n)}');closePanel()" style="font-size:8px;letter-spacing:0;text-align:left;margin-bottom:2px;padding:5px 9px">${n}</button>`).join('')}
+  </div>
+  <div class="stit">DATA INTEGRITY</div>
+  <div style="font-size:10px;color:var(--ts);font-family:'Share Tech Mono',monospace;line-height:1.8;background:var(--bg3);border:1px solid var(--b1);padding:8px;border-radius:2px">All data in this platform is sourced from verified public APIs.<br>No hardcoded intelligence. Every data point has source + timestamp.<br>Military data: OpenStreetMap (community verified)<br>Aircraft: OpenSky Network (ADS-B transponders)<br>Events: GDELT Project (real-time media analysis)<br>Seismic: USGS Earthquake Hazards Program<br>Weather: Open-Meteo (ERA5 reanalysis)<br>News: The Guardian API<br>Country: REST Countries + World Bank<br>Satellite: NASA GIBS (MODIS/VIIRS)</div>`;
+}
+
+function pIntel(body){
+  const c=S.roi?S.roi.getCenter():S.map.getCenter();const g=S.geocode?.address||{};const cc=(g.country_code||'').toLowerCase();const ci=S.countryInfo;const wb=S.worldBank;
+  body.innerHTML=`<div class="stit">TARGET COORDINATES</div>
+  <div class="ig3"><div class="ic"><div class="lbl">LATITUDE</div><div class="val a">${c.lat.toFixed(6)}</div></div><div class="ic"><div class="lbl">LONGITUDE</div><div class="val a">${c.lng.toFixed(6)}</div></div><div class="ic"><div class="lbl">ELEVATION</div><div class="val">${S.elev!=null?S.elev+' m ASL':'—'}</div></div></div>
+  <div class="ig"><div class="ic"><div class="lbl">COUNTRY</div><div class="val" style="display:flex;align-items:center;font-size:11px">${cc?flagImg(cc):''} ${esc(g.country||'—')}</div></div><div class="ic"><div class="lbl">STATE/REGION</div><div class="val" style="font-size:10px">${esc(g.state||g.region||'—')}</div></div><div class="ic"><div class="lbl">CITY/AREA</div><div class="val" style="font-size:10px">${esc(g.city||g.town||g.village||g.county||'—')}</div></div><div class="ic"><div class="lbl">ROI AREA</div><div class="val g">${S.roiArea||'—'} km²</div></div></div>
+  <div style="font-size:8px;color:var(--tm);font-family:'Share Tech Mono',monospace;margin-bottom:8px">Source: Nominatim/OSM · Confidence: HIGH · ${new Date().toUTCString().slice(0,-4)} UTC</div>
+  ${S.data.mil.length?`<div class="stit am">MILITARY INSTALLATIONS (${S.data.mil.length}) — OSM VERIFIED</div>${S.data.mil.slice(0,8).map(m=>{const mt=MIL_TYPES[m.tags?.military||'base']||{icon:'🛡',color:'#ff9030',label:'FACILITY'};const lat=m.lat||m.center?.lat;const lon=m.lon||m.center?.lon;return`<div class="mil-card" onclick="S.map.flyTo([${lat},${lon}],12)"><div class="mil-type" style="color:${mt.color}">${mt.icon} ${mt.label}</div><div class="mil-name">${esc(m.tags?.name||'Unnamed')}</div><div class="mil-meta">${lat?.toFixed(4)||'—'}, ${lon?.toFixed(4)||'—'} · OSM:${m.id} · ${new Date().toLocaleDateString()}</div></div>`;}).join('')}`:'<div class="ldb">Enable 🛡 MIL BASES overlay to load real military data</div>'}
+  ${S.weather?`<div class="stit">WEATHER (Open-Meteo · 30-Day)</div><div class="ig3"><div class="ic"><div class="lbl">AVG MAX TEMP</div><div class="val am">${(S.weather.daily.temperature_2m_max.slice(-30).reduce((a,b)=>a+b,0)/30).toFixed(1)}°C</div></div><div class="ic"><div class="lbl">TOTAL PRECIP</div><div class="val a">${S.weather.daily.precipitation_sum.slice(-30).reduce((a,b)=>a+b,0).toFixed(0)}mm</div></div><div class="ic"><div class="lbl">MAX WIND</div><div class="val">${Math.max(...S.weather.daily.windspeed_10m_max.slice(-30)).toFixed(0)} km/h</div></div></div>`:''}
+  ${ci?`<div class="stit">COUNTRY PROFILE</div><div class="ig3"><div class="ic"><div class="lbl">POPULATION</div><div class="val">${ci.population?(ci.population/1e6).toFixed(1)+'M':'—'}</div></div><div class="ic"><div class="lbl">GDP</div><div class="val tl">${wb?.gdp?.value?'$'+(wb.gdp.value/1e12).toFixed(2)+'T':'—'}</div></div><div class="ic"><div class="lbl">MIL SPEND</div><div class="val rd">${wb?.mil?.value?wb.mil.value.toFixed(2)+'% GDP':'—'}</div></div></div><div class="ic" style="margin-bottom:8px"><div class="lbl">BORDERING COUNTRIES</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">${(ci.borders||[]).map(b=>`<span style="background:var(--bg1);border:1px solid var(--b1);padding:2px 7px;border-radius:2px;font-size:9px;display:inline-flex;align-items:center;gap:3px">${flagImg(b)} ${b}</span>`).join('')||'None'}</div></div>`:''}
+  <button class="fb fb-a" onclick="runFullAnalysis()">⚡ FULL ANALYSIS</button><button class="fb fb-pu" onclick="runAI()">🤖 AI BRIEF</button>`;
+}
+
+function pChange(body){
+  body.innerHTML=`<div class="stit">TEMPORAL COMPARISON</div>
+  <div class="ig"><div class="ic"><div class="lbl">BEFORE DATE</div><div class="val a">${document.getElementById('bdate').value}</div></div><div class="ic"><div class="lbl">AFTER DATE</div><div class="val a">${document.getElementById('adate').value}</div></div></div>
+  <div class="stit">LAYER CONTROL</div>
+  <button class="fb fb-o" onclick="setLayer(S.currentLayer,document.getElementById('bdate').value);showToast('Viewing BEFORE imagery')">← VIEW BEFORE IMAGE</button>
+  <button class="fb fb-a" onclick="setLayer(S.currentLayer,document.getElementById('adate').value);showToast('Viewing AFTER imagery')">VIEW AFTER IMAGE →</button>
+  <div style="font-size:9.5px;color:var(--ts);padding:8px;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;margin-bottom:8px;font-family:'Share Tech Mono',monospace">Toggle between BEFORE and AFTER buttons to compare satellite imagery at the two dates. Switch layers (SWIR for burn scars, THERMAL for heat changes, NDVI for vegetation changes) for different types of change detection.</div>
+  <div class="stit">LAYER OPACITY</div>
+  <div style="margin-bottom:5px"><div class="lbl" style="margin-bottom:3px">SATELLITE LAYER OPACITY</div><input type="range" min="0" max="100" value="93" style="width:100%;accent-color:var(--a)" oninput="S.lyG.getLayers()[0]?.setOpacity(this.value/100)"></div>
+  <div class="stit">ANALYSIS LAYERS FOR CHANGE</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+  ${[['SWIR (7-2-1)','false_burn','Best for: burn scars, flooding, deforestation'],['NDVI','ndvi','Best for: vegetation change, crop damage, forest loss'],['THERMAL','thermal_day','Best for: industrial heat, new construction, fires'],['NIR','false_veg','Best for: agriculture, vegetation health change'],['VIIRS Night','night_lights','Best for: new construction, power changes, activity'],['True Color','true_color','Best for: visible land use changes, new structures']].map(([n,k,d])=>`<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:7px;cursor:pointer" onclick="setLayer('${k}',document.getElementById('adate').value)"><div style="font-size:9px;font-weight:600;color:var(--a);margin-bottom:2px">${n}</div><div style="font-size:8.5px;color:var(--tm)">${d}</div></div>`).join('')}
+  </div>
+  ${S.aiAnalysis?`<div class="stit pu">AI CHANGE ASSESSMENT</div><div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:9px;font-family:'Rajdhani',sans-serif;font-size:11px;color:var(--ts);line-height:1.6;max-height:200px;overflow-y:auto">Run AI BRIEF to get change assessment</div>`:''}`;
+}
+
+function pEnv(body){
+  const w=S.weather;const aq=S.aq?.hourly||{};
+  body.innerHTML=`<div class="stit am">REAL ATMOSPHERIC DATA (Open-Meteo)</div>
+  ${w?`<div class="ig3"><div class="ic"><div class="lbl">AVG MAX 30D</div><div class="val am">${(w.daily.temperature_2m_max.slice(-30).reduce((a,b)=>a+b,0)/30).toFixed(1)}°C</div></div><div class="ic"><div class="lbl">AVG MIN 30D</div><div class="val a">${(w.daily.temperature_2m_min.slice(-30).reduce((a,b)=>a+b,0)/30).toFixed(1)}°C</div></div><div class="ic"><div class="lbl">TOTAL PRECIP 30D</div><div class="val tl">${w.daily.precipitation_sum.slice(-30).reduce((a,b)=>a+b,0).toFixed(0)}mm</div></div><div class="ic"><div class="lbl">MAX WIND</div><div class="val">${Math.max(...w.daily.windspeed_10m_max.slice(-30)).toFixed(0)} km/h</div></div><div class="ic"><div class="lbl">ELEVATION</div><div class="val">${S.elev!=null?S.elev+' m':'—'}</div></div><div class="ic"><div class="lbl">EVAPOTRANSPIRATION</div><div class="val" style="font-size:10px">${w.daily.et0_fao_evapotranspiration?w.daily.et0_fao_evapotranspiration.slice(-7).reduce((a,b)=>a+b,0).toFixed(1)+' mm/7d':'—'}</div></div></div>
+  <div class="stit am">AIR QUALITY (Open-Meteo AQ)</div>
+  <div class="ig3"><div class="ic"><div class="lbl">PM2.5</div><div class="val ${parseFloat(aq.pm2_5?.[0])>35?'rd':parseFloat(aq.pm2_5?.[0])>12?'am':'g'}">${aq.pm2_5?.[0]?.toFixed(1)||'—'} µg/m³</div></div><div class="ic"><div class="lbl">PM10</div><div class="val">${aq.pm10?.[0]?.toFixed(1)||'—'} µg/m³</div></div><div class="ic"><div class="lbl">NO2</div><div class="val">${aq.nitrogen_dioxide?.[0]?.toFixed(1)||'—'} µg/m³</div></div></div>
+  <div class="stit am">TEMPERATURE TREND (30 DAYS)</div>
+  <div class="cw"><canvas id="tmp-chart"></canvas></div>
+  <div class="stit am">PRECIPITATION (30 DAYS)</div>
+  <div class="cw"><canvas id="prc-chart"></canvas></div>`:`<div class="ldb">Run ⚡ ANALYZE to load real environmental data from Open-Meteo</div>`}`;
+  if(w){setTimeout(()=>{const lb=w.daily.time.slice(-30).map(d=>d.slice(5));mkChart('tmp-chart','line',lb,[{label:'Max°C',data:w.daily.temperature_2m_max.slice(-30),borderColor:'rgba(255,45,74,.8)',fill:false,tension:.3,pointRadius:0},{label:'Min°C',data:w.daily.temperature_2m_min.slice(-30),borderColor:'rgba(0,200,240,.8)',fill:false,tension:.3,pointRadius:0}],'');mkChart('prc-chart','bar',lb,[{label:'Precip (mm)',data:w.daily.precipitation_sum.slice(-30),backgroundColor:'rgba(0,200,176,.5)',borderWidth:1}],'');},100);}
+}
+
+function pAI(body){
+  if(!S.aiAnalysis){body.innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:30px;margin-bottom:10px">🤖</div><div style="font-family:'Orbitron',monospace;font-size:10px;color:var(--a);letter-spacing:2px;margin-bottom:8px">AI INTELLIGENCE ENGINE</div><div style="font-size:11px;color:var(--tm);margin-bottom:16px;font-family:'Share Tech Mono',monospace">Combines ALL real data (OSM military, OpenSky aircraft,<br>GDELT events, weather, seismic, country intel) into<br>a comprehensive AI-generated briefing.</div><button class="fb fb-pu" onclick="runAI()">🤖 GENERATE AI BRIEFING</button><button class="fb fb-o" onclick="runFullAnalysis()">⚡ LOAD DATA FIRST</button><div style="font-size:9px;color:var(--tm);font-family:'Share Tech Mono',monospace;margin-top:10px">Claude API used automatically in claude.ai<br>Groq key needed for standalone use (⚙ API KEYS)</div></div>`;return;}
+  const a=S.aiAnalysis;
+  body.innerHTML=`<div class="stit pu">AI INTELLIGENCE BRIEF</div>
+  <div class="ig3"><div class="ic"><div class="lbl">LOCATION</div><div class="val a" style="font-size:10px">${parseFloat(a.lat).toFixed(4)}, ${parseFloat(a.lon).toFixed(4)}</div></div><div class="ic"><div class="lbl">GENERATED</div><div class="val" style="font-size:9px">${timeAgo(a.ts)}</div></div><div class="ic"><div class="lbl">DATA SOURCES</div><div class="val g" style="font-size:9px">${(['OSM','OpenSky','GDELT','Open-Meteo','REST Countries'].filter((_,i)=>[S.data.mil.length,S.data.aircraft.length,S.data.events.length,S.weather,S.countryInfo][i]).join(' · '))}</div></div></div>
+  <div class="stit pu">BRIEFING TEXT</div>
+  <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:10px;font-family:'Rajdhani',sans-serif;font-size:12px;color:var(--ts);line-height:1.7;max-height:400px;overflow-y:auto;white-space:pre-wrap">${esc(a.text)}</div>
+  <div class="stit pu">AI CHAT — ASK FOLLOW-UP</div>
+  <div class="ch-area" id="ch-area"></div>
+  <div style="flex-wrap:wrap;margin-bottom:7px">${['Assess threat to military installations','What suspicious aircraft patterns?','Environmental impact assessment','Recommend intelligence collection priorities','What has changed between the two dates?'].map(q=>`<button class="qp" onclick="askChat('${esc(q)}')">${q}</button>`).join('')}</div>
+  <div class="ir"><textarea id="ch-in" placeholder="Ask follow-up intelligence question..."></textarea><button onclick="sendChat()">ASK</button></div>
+  <button class="fb fb-pu" onclick="runAI()">🔄 REGENERATE</button><button class="fb fb-o" onclick="exportReport()">⬇ EXPORT BRIEF</button>`;
+}
+
+async function askChat(q){document.getElementById('ch-in').value=q;await sendChat();}
+async function sendChat(){
+  const inp=document.getElementById('ch-in');if(!inp)return;const q=inp.value.trim();if(!q)return;inp.value='';
+  const area=document.getElementById('ch-area');if(!area)return;
+  S.chatHistory.push({role:'user',content:q});
+  area.innerHTML+=`<div class="ch-msg ch-user">${esc(q)}</div>`;
+  area.innerHTML+=`<div class="ch-msg ch-ai" id="ch-loading"><div class="sp"></div> Analyzing...</div>`;
+  area.scrollTop=area.scrollHeight;
+  try{
+    const ctx=`Context: Coordinates ${S.aiAnalysis?.lat||'—'}, ${S.aiAnalysis?.lon||'—'}. Military sites: ${S.data.mil.length}. Aircraft: ${S.data.aircraft.length} (${S.suspicious.length} suspicious). GDELT events: ${S.data.events.length}. Previous brief summary: ${S.aiAnalysis?.text?.slice(0,500)||'—'}`;
+    const resp=await callAI(`${ctx}\n\nQuestion: ${q}`);
+    S.chatHistory.push({role:'assistant',content:resp});
+    document.getElementById('ch-loading').outerHTML=`<div class="ch-msg ch-ai"><b style="color:var(--a)">AI ANALYST:</b> ${esc(resp)}</div>`;
+    area.scrollTop=area.scrollHeight;
+  }catch(e){document.getElementById('ch-loading').outerHTML=`<div class="ch-msg ch-ai" style="color:var(--rd)">Error: ${esc(e.message)}</div>`;}
+}
+
+function pMilitary(body){
+  const mil=S.data.mil;const z=S.map.getZoom();
+  body.innerHTML=`<div class="stit am">MILITARY INSTALLATIONS — OpenStreetMap (Real, Verified)</div>
+  <div class="ig3"><div class="ic"><div class="lbl">TOTAL LOADED</div><div class="val am">${mil.length}</div></div><div class="ic"><div class="lbl">ZOOM LEVEL</div><div class="val">${z}</div></div><div class="ic"><div class="lbl">DATA SOURCE</div><div class="val g" style="font-size:9px">OSM VERIFIED</div></div></div>
+  <div class="ig3"><div class="ic"><div class="lbl">AIRFIELDS</div><div class="val a">${mil.filter(m=>m.tags?.military==='airfield').length}</div></div><div class="ic"><div class="lbl">BASES</div><div class="val am">${mil.filter(m=>m.tags?.military==='base').length}</div></div><div class="ic"><div class="lbl">NAVAL</div><div class="val tl">${mil.filter(m=>m.tags?.military==='naval_base').length}</div></div></div>
+  <button class="fb fb-am" onclick="toggleOv('mil',fetchMilitary)">🔄 REFRESH FROM OSM OVERPASS</button>
+  ${z<5?'<div class="ldb">⚠ Zoom in to level 5+ to load military data</div>':''}
+  ${mil.length?`<div class="stit am">INSTALLATION LIST (${mil.length})</div><div style="max-height:400px;overflow-y:auto">${Object.entries(mil.reduce((acc,m)=>{const t=m.tags?.military||'other';(acc[t]=acc[t]||[]).push(m);return acc;},{})).map(([type,sites])=>{const mt=MIL_TYPES[type]||{icon:'🛡',color:'#ff9030',label:type.toUpperCase()};return`<div style="margin-bottom:8px"><div style="font-size:7px;font-family:'Orbitron',monospace;color:${mt.color};letter-spacing:1px;margin-bottom:4px">${mt.icon} ${mt.label} (${sites.length})</div>${sites.map(m=>{const lat=m.lat||m.center?.lat;const lon=m.lon||m.center?.lon;const name=m.tags?.name||m.tags?.['name:en']||'Unnamed';const country=m.tags?.['addr:country']||m.tags?.country||'';const icao=m.tags?.icao||'';return`<div class="mil-card" onclick="S.map.flyTo([${lat},${lon}],12);showToast('Flying to ${esc(name)}')"><div class="mil-name">${esc(name)}</div><div class="mil-meta">${lat?.toFixed(4)||'—'}, ${lon?.toFixed(4)||'—'}${country?' · '+country:''}${icao?' · ICAO:'+icao:''} · OSM:${m.id}</div></div>`;}).join('')}</div>`;}).join('')}</div>`:`<div class="ldb">Enable 🛡 MIL BASES overlay to load military data from OpenStreetMap</div>`}
+  <div style="font-size:8.5px;color:var(--tm);font-family:'Share Tech Mono',monospace;padding:7px;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;margin-top:8px">Source: OpenStreetMap Overpass API · Tags: military=* · Community-verified geographic data · Updated continuously · Confidence: HIGH</div>`;
+}
+
+function pAirports(body){
+  const ap=S.data.airports;const mil=ap.filter(e=>(e.tags?.military||((e.tags?.name||'').match(/(air force|airforce|AFB|IAF|PAF|PLAAF|RAF|naval air|military)/i))));
+  body.innerHTML=`<div class="stit a">AERODROMES & AIRFIELDS — OpenStreetMap</div>
+  <div class="ig3"><div class="ic"><div class="lbl">TOTAL</div><div class="val a">${ap.length}</div></div><div class="ic"><div class="lbl">MILITARY</div><div class="val rd">${mil.length}</div></div><div class="ic"><div class="lbl">CIVIL</div><div class="val g">${ap.length-mil.length}</div></div></div>
+  <button class="fb fb-a" onclick="toggleOv('airports',fetchAirports)">🔄 REFRESH AIRFIELD DATA</button>
+  ${ap.length?`<div class="stit">MILITARY AIRFIELDS</div><div style="max-height:220px;overflow-y:auto">${mil.map(e=>{const lat=e.lat||e.center?.lat;const lon=e.lon||e.center?.lon;const name=e.tags?.name||'Unnamed';const icao=e.tags?.icao||'—';return`<div class="mil-card" onclick="S.map.flyTo([${lat},${lon}],12)"><div class="mil-type" style="color:var(--rd)">🛫 MILITARY AIRFIELD</div><div class="mil-name">${esc(name)}</div><div class="mil-meta">ICAO: ${icao} · ${lat?.toFixed(4)||'—'}, ${lon?.toFixed(4)||'—'} · OSM:${e.id}</div></div>`;}).join('')||'<div class="ldb">No military airfields detected</div>'}</div>
+  <div class="stit">ALL AERODROMES</div><div style="max-height:220px;overflow-y:auto">${ap.map(e=>{const lat=e.lat||e.center?.lat;const lon=e.lon||e.center?.lon;const name=e.tags?.name||'Unnamed';const icao=e.tags?.icao||'—';const iata=e.tags?.iata||'—';return`<div class="mil-card" onclick="S.map.flyTo([${lat},${lon}],12)"><div class="mil-name">${esc(name)}</div><div class="mil-meta">ICAO:${icao} IATA:${iata} · ${lat?.toFixed(4)||'—'}, ${lon?.toFixed(4)||'—'}</div></div>`;}).join('')}</div>`:`<div class="ldb">Enable 🛫 AIRFIELDS overlay to load aerodrome data from OpenStreetMap</div>`}`;
+}
+
+function pInfra(body){body.innerHTML=`<div class="stit tl">CRITICAL INFRASTRUCTURE — OpenStreetMap</div><button class="fb fb-tl" onclick="toggleOv('infra',fetchInfra)">⚡ LOAD INFRASTRUCTURE (zoom 8+)</button><div style="font-size:10px;color:var(--ts);font-family:'Share Tech Mono',monospace;padding:8px;background:var(--bg3);border:1px solid var(--b1);border-radius:2px">Queries OpenStreetMap for: Power plants, substations, petroleum wells, telecom exchanges, major bridges. These are high-value targets for intelligence analysis.<br><br>Enable ⚡ INFRA overlay on the map to visualize locations.</div><button class="fb fb-o" onclick="toggleRail()">🚆 TOGGLE RAIL INFRASTRUCTURE</button><button class="fb fb-o" onclick="toggleSea()">🌊 TOGGLE MARITIME ROUTES</button>`;}
+
+function pAirtrack(body){
+  const ac=S.data.aircraft;
+  body.innerHTML=`<div class="stit tl">LIVE ADS-B TRACKING — OpenSky Network</div>
+  <div class="ig3"><div class="ic"><div class="lbl">TOTAL AIRCRAFT</div><div class="val tl">${ac.length}</div></div><div class="ic"><div class="lbl">SUSPICIOUS</div><div class="val rd">${S.suspicious.length}</div></div><div class="ic"><div class="lbl">AIRBORNE</div><div class="val g">${ac.filter(s=>s&&!s[8]).length}</div></div></div>
+  <button class="fb fb-tl" onclick="toggleOv('ac',fetchAircraft)">🔄 REFRESH ADS-B DATA</button>
+  ${ac.length?`<div class="stit tl">AIRCRAFT LIST (${Math.min(ac.length,60)} shown)</div><div style="max-height:420px;overflow-y:auto">${ac.slice(0,60).map(s=>{if(!s||s[6]==null)return'';const cs=(s[1]||'').trim()||'NO CALLSIGN',country=s[2]||'—',alt=Math.round(s[7]||0),spd=Math.round(s[9]||0),hdg=Math.round(s[10]||0);const isSus=AC_SUSPICIOUS_RULES.some(r=>r.test(s));const isMil=AC_SUSPICIOUS_RULES.find(r=>r.id==='mil_callsign'&&r.test(s));const reasons=AC_SUSPICIOUS_RULES.filter(r=>r.test(s)).map(r=>r.label);return`<div class="ac-card ${isSus&&!isMil?'suspicious':''}" onclick="S.map.flyTo([${s[6]},${s[5]}],10)"><div style="display:flex;justify-content:space-between;align-items:center"><div class="ac-cs ${isSus&&!isMil?'sus':''}">${isSus&&!isMil?'⚠ ':''}${esc(cs)}</div><span class="bdg ${isSus?'bdg-rd':isMil?'bdg-am':'bdg-tl'}" style="font-size:6.5px">${isMil?'MILITARY':isSus?'FLAGGED':'CIVIL'}</span></div><div class="ac-meta">${esc(country)} · ALT:${alt}m · SPD:${spd}km/h · HDG:${hdg}°${s[8]?' · ON GROUND':''}</div>${reasons.length?`<div style="font-size:8px;color:var(--rd);margin-top:2px">${reasons.join(' · ')}</div>`:''}</div>`;}).join('')}</div>`:`<div class="ldb">Click ✈ AIRCRAFT overlay or REFRESH to load live ADS-B data</div>`}
+  <div style="font-size:8px;color:var(--tm);font-family:'Share Tech Mono',monospace;padding:6px;margin-top:6px">Source: OpenSky Network · ADS-B transponder data · Refreshed every 60s · Confidence: HIGH for transponder data</div>`;
+}
+
+function pSuspicious(body){
+  const sus=S.suspicious;
+  body.innerHTML=`<div class="stit rd">⚠ SUSPICIOUS AIRCRAFT PATTERNS</div>
+  <div class="ig"><div class="ic"><div class="lbl">TOTAL FLAGGED</div><div class="val rd">${sus.length}</div></div><div class="ic"><div class="lbl">DETECTION RULES</div><div class="val">${AC_SUSPICIOUS_RULES.length} active</div></div></div>
+  <div class="stit rd">DETECTION RULES ACTIVE</div>
+  ${AC_SUSPICIOUS_RULES.map(r=>`<div class="mr"><span class="ml2">${r.label}</span><span class="bdg bdg-${r.sev==='critical'?'rd':r.sev==='high'?'am':'a'}" style="font-size:6.5px">${r.sev.toUpperCase()}</span></div>`).join('')}
+  ${sus.length?`<div class="stit rd">FLAGGED AIRCRAFT (${sus.length})</div><div style="max-height:350px;overflow-y:auto">${sus.map(s=>{const cs=(s[1]||'').trim()||'NO CALLSIGN';const reasons=AC_SUSPICIOUS_RULES.filter(r=>r.test(s));const worst=reasons.find(r=>r.sev==='critical')||reasons[0];return`<div class="ac-card suspicious" onclick="S.map.flyTo([${s[6]},${s[5]}],10)"><div style="display:flex;justify-content:space-between"><div class="ac-cs sus">⚠ ${esc(cs)}</div><span class="bdg bdg-rd" style="font-size:6.5px">${worst?.sev?.toUpperCase()||'HIGH'}</span></div><div class="ac-meta">${esc(s[2]||'?')} · ALT:${Math.round(s[7]||0)}m · SPD:${Math.round(s[9]||0)}km/h · HDG:${Math.round(s[10]||0)}°</div><div style="font-size:8.5px;color:var(--rd);margin-top:3px">${reasons.map(r=>r.label).join(' · ')}</div></div>`;}).join('')}</div>`:`<div class="ldb">${S.data.aircraft.length>0?'No suspicious patterns detected in current aircraft':'Load aircraft data first — click ✈ AIRCRAFT overlay'}</div>`}`;
+}
+
+function pEvents(body){
+  const ev=S.data.events;
+  body.innerHTML=`<div class="stit rd">GDELT GEOPOLITICAL EVENTS — Real-time</div>
+  <div class="ig3"><div class="ic"><div class="lbl">EVENTS LOADED</div><div class="val rd">${ev.length}</div></div><div class="ic"><div class="lbl">NEGATIVE TONE</div><div class="val am">${ev.filter(e=>parseFloat(e.tone||0)<-3).length}</div></div><div class="ic"><div class="lbl">RADIUS</div><div class="val">200 km</div></div></div>
+  <button class="fb fb-rd" onclick="toggleOv('ev',fetchGDELT)">🔄 REFRESH GDELT EVENTS</button>
+  ${ev.length?ev.map(a=>{const tone=parseFloat(a.tone||0);const sev=tone<-6?'critical':tone<-3?'high':'medium';const col=sev==='critical'?'#ff1100':sev==='high'?'#ff5500':'#ff9900';const lat=a.geography?.lat;const lon=a.geography?.lon;return`<div class="ev-card ${sev}" onclick="${lat&&lon?`S.map.flyTo([${lat},${lon}],8)`:''}" style="cursor:${lat&&lon?'pointer':'default'}"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:7px;font-family:'Orbitron',monospace;color:${col}">TONE ${tone.toFixed(1)}</span><span class="bdg bdg-${sev==='critical'?'rd':'am'}" style="font-size:6.5px">${sev.toUpperCase()}</span></div><div style="font-size:11px;color:var(--tp);font-weight:600;line-height:1.3;margin-bottom:3px">${esc((a.title||'—').slice(0,100))}</div><div style="font-size:8.5px;color:var(--ts)">${esc(a.domain||'—')} · ${esc(a.sourcecountry||'—')} · ${esc(a.language||'EN')} · ${a.geography?.fullname||'—'}</div><a href="${esc(a.url||'#')}" target="_blank" class="nlink" style="font-size:8px;display:inline-block;margin-top:4px">READ SOURCE →</a></div>`;}).join(''):`<div class="ldb">Click 🔴 EVENTS overlay to load real-time GDELT events for current map area</div>`}`;
+}
+
+function pNews(body){
+  const arts=S.data.news;
+  body.innerHTML=`<div class="stit or">NEWS INTELLIGENCE — The Guardian + GDELT</div>
+  <div class="ir"><input type="text" id="nq-in" placeholder="Query: military, conflict, border, security..." value="${esc(S.data.news.length?'(loaded)':'military conflict security')}"><button onclick="loadNews()">FETCH</button></div>
+  <div class="ig3"><div class="ic"><div class="lbl">GUARDIAN</div><div class="val or">${arts.length}</div></div><div class="ic"><div class="lbl">LAST FETCH</div><div class="val" style="font-size:9px">${arts.length?timeAgo(Date.now()-60000):'Never'}</div></div><div class="ic"><div class="lbl">SOURCE</div><div class="val g" style="font-size:8px">VERIFIED</div></div></div>
+  ${arts.length?arts.map(a=>{const pub=a.sectionName||'WORLD';const thumb=a.fields?.thumbnail;const timeStr=a.webPublicationDate?timeAgo(new Date(a.webPublicationDate).getTime()):'—';return`<div class="nc"><div style="display:flex"><div>${thumb?`<img src="${thumb}" class="nth" onerror="this.style.display='none'">`:''}  </div><div style="flex:1"><div class="nm"><span class="ns">THE GUARDIAN · ${esc(pub.toUpperCase())}</span><span class="nt">${timeStr}</span>${a.fields?.wordcount?`<span class="nlang">${a.fields.wordcount}w</span>`:''}</div><div class="nttl">${esc(a.webTitle||'—')}</div>${a.fields?.trailText?`<div class="ndesc">${esc(a.fields.trailText.slice(0,130))}...</div>`:''}<a href="${esc(a.webUrl||'#')}" target="_blank" class="nlink">READ FULL →</a></div></div></div>`;}).join(''):`<div class="ldb">Click FETCH to load real news from The Guardian API (free)</div>`}`;
+}
+
+function pQuakes(body){
+  const eq=S.data.quakes;
+  body.innerHTML=`<div class="stit am">SEISMIC ACTIVITY — USGS Earthquake Hazards Program</div>
+  <div class="ig3"><div class="ic"><div class="lbl">M4.5+ (7 DAYS)</div><div class="val am">${eq.length}</div></div><div class="ic"><div class="lbl">M6.0+</div><div class="val rd">${eq.filter(q=>q.properties.mag>=6).length}</div></div><div class="ic"><div class="lbl">M7.0+</div><div class="val rd">${eq.filter(q=>q.properties.mag>=7).length}</div></div></div>
+  <button class="fb fb-am" onclick="toggleOv('eq',fetchEQ)">🔄 REFRESH USGS DATA</button>
+  ${eq.length?`<div class="cw"><canvas id="eq-chart"></canvas></div><div style="max-height:350px;overflow-y:auto">${eq.slice(0,25).map(q=>{const p=q.properties,c=q.geometry.coordinates;const mag=p.mag;const col=mag>=7?'#ff0000':mag>=6?'#ff4400':mag>=5?'#ff8800':'#ffcc00';return`<div class="ev-card" onclick="S.map.flyTo([${c[1]},${c[0]}],8)" style="cursor:pointer"><div style="display:flex;justify-content:space-between"><span style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;color:${col}">M${mag.toFixed(1)}</span><span style="font-size:9px;font-family:'Share Tech Mono',monospace;color:var(--tm)">${new Date(p.time).toUTCString().slice(0,-4)} UTC</span></div><div style="font-size:11px;color:var(--tp);margin:3px 0">${esc(p.place||'—')}</div><div style="font-size:9px;color:var(--ts)">Depth: ${c[2].toFixed(0)} km · ${c[1].toFixed(3)}, ${c[0].toFixed(3)}</div></div>`;}).join('')}</div>`:`<div class="ldb">Enable 🌍 QUAKES overlay or click REFRESH to load USGS data</div>`}`;
+  if(eq.length){setTimeout(()=>{const bins=[0,0,0,0];eq.forEach(q=>{const m=q.properties.mag;if(m>=7)bins[0]++;else if(m>=6)bins[1]++;else if(m>=5)bins[2]++;else bins[3]++;});mkChart('eq-chart','bar',['M7.0+','M6.0-6.9','M5.0-5.9','M4.5-4.9'],[{label:'Earthquakes',data:bins,backgroundColor:['rgba(255,0,0,.7)','rgba(255,68,0,.7)','rgba(255,136,0,.7)','rgba(255,204,0,.5)'],borderWidth:1}],'Magnitude Distribution');},100);}
+}
+
+function pCrisis(body){
+  body.innerHTML=`<div class="stit rd">HUMANITARIAN CRISES — ReliefWeb (UN)</div>
+  <button class="fb fb-rd" onclick="fetchReliefWeb().then(d=>{S.data.crises=d;renderPanel('crisis');showToast(d.length+' crises loaded from ReliefWeb')})">🔄 LOAD RELIEFWEB DATA</button>
+  ${S.data.crises.length?S.data.crises.map(c=>{const f=c.fields||{};const country=(f.country||[{}])[0]?.name||'Global';const cc=(f.country||[{}])[0]?.iso3?.toLowerCase()||'';const status=f.status||'ongoing';const types=(f.type||[]).map(t=>t.name).join(', ');return`<div class="ev-card ${status==='alert'?'critical':''}"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><div style="display:flex;align-items:center;gap:5px;font-weight:600">${cc?flagImg(cc):''} ${esc(country)}</div><span class="bdg bdg-${status==='alert'?'rd':'am'}">${status.toUpperCase()}</span></div><div style="font-size:11px;color:var(--tp);margin-bottom:3px">${esc(f.name||'—')}</div><div class="tgl"><span class="tag">${esc(types||'Crisis')}</span>${f.date?.created?`<span class="tag">${new Date(f.date.created).toLocaleDateString()}</span>`:''}</div></div>`;}).join(''):`<div class="ldb">Click LOAD to fetch current UN ReliefWeb crisis data (free API)</div>`}`;
+}
+
+function pCountry(body){
+  const ci=S.countryInfo;const wb=S.worldBank;const g=S.geocode?.address||{};const cc=(g.country_code||'').toLowerCase();
+  if(!ci){body.innerHTML=`<div class="ldb">Run ⚡ ANALYZE to load country intelligence</div><button class="fb fb-a" onclick="runFullAnalysis()">⚡ ANALYZE AREA</button>`;return;}
+  body.innerHTML=`<div class="stit">COUNTRY INTELLIGENCE — REST Countries + World Bank</div>
+  <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;margin-bottom:10px"><img src="https://flagcdn.com/40x30/${cc}.png" style="height:24px;border-radius:2px;box-shadow:0 1px 6px rgba(0,0,0,.4)" onerror="this.style.display='none'"><div><div style="font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--tp)">${esc(ci.name?.common||'—')}</div><div style="font-size:9.5px;color:var(--ts);margin-top:1px">${esc(ci.name?.official||'—')}</div></div></div>
+  <div class="ig3"><div class="ic"><div class="lbl">POPULATION</div><div class="val">${ci.population?(ci.population/1e6).toFixed(1)+'M':'—'}</div></div><div class="ic"><div class="lbl">AREA</div><div class="val" style="font-size:10px">${ci.area?ci.area.toLocaleString()+' km²':'—'}</div></div><div class="ic"><div class="lbl">CAPITAL</div><div class="val" style="font-size:10px">${esc(ci.capital?.[0]||'—')}</div></div></div>
+  ${wb?`<div class="stit tl">WORLD BANK ECONOMIC DATA</div><div class="ig3"><div class="ic"><div class="lbl">GDP TOTAL</div><div class="val tl">${wb.gdp?.value?'$'+(wb.gdp.value/1e12).toFixed(3)+'T':'—'}<div style="font-size:7px;color:var(--tm)">${wb.gdp?.year||''}</div></div></div><div class="ic"><div class="lbl">GDP/CAPITA</div><div class="val">${wb.gdppc?.value?'$'+Math.round(wb.gdppc.value).toLocaleString():'—'}</div></div><div class="ic"><div class="lbl">MILITARY SPEND</div><div class="val rd">${wb.mil?.value?wb.mil.value.toFixed(2)+'% GDP':'—'}<div style="font-size:7px;color:var(--tm)">${wb.mil?.year||''}</div></div></div></div>`:''}
+  <div class="stit">BORDER COUNTRIES</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">${(ci.borders||[]).map(b=>`<div style="background:var(--bg2);border:1px solid var(--b1);border-radius:2px;padding:3px 8px;font-size:10px;color:var(--ts);display:flex;align-items:center;gap:3px">${flagImg(b)}${b}</div>`).join('')||'<span style="color:var(--tm);font-size:10px">No bordering countries (island state)</span>'}</div>
+  <div class="stit">LANGUAGES · CURRENCY</div><div class="tgl">${Object.values(ci.languages||{}).map(l=>`<span class="tag">${esc(l)}</span>`).join('')}</div><div style="margin-top:5px">${Object.entries(ci.currencies||{}).map(([c,i])=>`<span class="tag">${esc(i.symbol||'')} ${esc(i.name||c)}</span>`).join('')}</div>
+  <div class="stit">OTHER NAMES (TRANSLATIONS)</div><div class="tgl">${Object.entries(ci.translations||{}).slice(0,12).map(([l,n])=>`<span class="tag" title="${l}">${esc(n.common||'')}</span>`).join('')}</div>`;
+}
+
+function pCyber(body){
+  body.innerHTML=`<div class="stit rd">CYBER THREAT INTELLIGENCE</div>
+  <div class="ir"><input type="text" id="cyber-tgt" placeholder="IP address or domain name..."><button onclick="scanCyber(document.getElementById('cyber-tgt').value)">SCAN</button></div>
+  ${S.cyberTarget?`<div class="stit rd">SCAN RESULT: ${esc(S.cyberTarget)}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:8px">
+  ${[['Shodan',`https://www.shodan.io/host/${S.cyberTarget}`,'Internet exposure & open ports'],['Censys',`https://search.censys.io/hosts/${S.cyberTarget}`,'Internet infrastructure scan'],['GreyNoise',`https://www.greynoise.io/viz/ip/${S.cyberTarget}`,'Noise/threat classification'],['AbuseIPDB',`https://www.abuseipdb.com/check/${S.cyberTarget}`,'IP abuse reports'],['AlienVault OTX',`https://otx.alienvault.com/indicator/ip/${S.cyberTarget}`,'Open threat exchange'],['URLScan.io',`https://urlscan.io/search/#${S.cyberTarget}`,'URL/domain analysis'],['VirusTotal',`https://www.virustotal.com/gui/search/${S.cyberTarget}`,'Multi-engine threat scan'],['Pulsedive',`https://pulsedive.com/indicator/?ioc=${S.cyberTarget}`,'Threat intelligence feed']].map(([n,u,d])=>`<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:7px;cursor:pointer" onclick="window.open('${u}','_blank')"><div style="font-size:10px;font-weight:600;color:var(--rd);margin-bottom:2px">${n}</div><div style="font-size:8.5px;color:var(--tm)">${d}</div></div>`).join('')}
+  </div>`:''}
+  <div class="stit rd">FREE OSINT CYBER TOOLS</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">${[['Shodan','https://shodan.io','Internet exposure'],['Censys','https://censys.io','Infra scanning'],['GreyNoise','https://greynoise.io','Threat noise'],['OTX AlienVault','https://otx.alienvault.com','Threat exchange'],['URLScan','https://urlscan.io','URL analysis'],['Pulsedive','https://pulsedive.com','Threat intel'],['IntelX','https://intelx.io','Deep web search'],['Spyse','https://spyse.com','Cyber asset intel']].map(([n,u,d])=>`<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:7px;cursor:pointer" onclick="window.open('${u}','_blank')"><div style="font-size:10px;font-weight:600;color:var(--a);margin-bottom:2px">${n}</div><div style="font-size:8.5px;color:var(--tm)">${d}</div></div>`).join('')}</div>`;
+}
+
+function scanCyber(t){if(!t){showToast('Enter IP or domain');return;}S.cyberTarget=t.trim();renderPanel('cyber');window.open(`https://ipinfo.io/${t}`, '_blank');}
+
+function pOSINT(body){
+  body.innerHTML=`<div class="stit pu">OSINT INVESTIGATION TOOLS</div>
+  <div class="ir"><input type="text" id="osint-q" placeholder="Person, organization, domain, location..."><button onclick="generateOSINT(document.getElementById('osint-q').value)">INVESTIGATE</button></div>
+  <div id="osint-links"></div>
+  <div class="stit pu">GEOSPATIAL OSINT</div>
+  ${[['SunCalc — Sun/Shadow Analysis','https://suncalc.org','Verify photo timestamps from sun position'],['Google Earth','https://earth.google.com','Historical satellite imagery comparison'],['Sentinel Hub EO Browser','https://apps.sentinel-hub.com/eo-browser','Free Sentinel/Landsat imagery'],['Planet Labs Explorer','https://www.planet.com/explorer','Daily imagery (limited free)'],['Bellingcat Toolkit','https://www.bellingcat.com/resources/how-tos/','OSINT investigation guides'],['Chronolocation Techniques','https://www.bellingcat.com/resources/','Verify image dates/locations']].map(([n,u,d])=>`<a href="${u}" target="_blank" class="osint-a">🌍 <div><div style="font-weight:600">${n}</div><div style="font-size:9px;color:var(--tm)">${d}</div></div></a>`).join('')}
+  <div class="stit pu">PEOPLE & ORGANIZATION OSINT</div>
+  ${[['WHOIS Lookup','https://www.whois.com/whois/','Domain ownership research'],['LinkedIn','https://www.linkedin.com','Professional network investigation'],['Wayback Machine','https://web.archive.org','Historical web archives'],['OpenCorporates','https://opencorporates.com','Global company data'],['ICIJ Offshore Leaks','https://offshoreleaks.icij.org','Panama/Pandora papers search'],['OCCRP Aleph','https://aleph.occrp.org','Investigative journalism database']].map(([n,u,d])=>`<a href="${u}" target="_blank" class="osint-a">🔍 <div><div style="font-weight:600">${n}</div><div style="font-size:9px;color:var(--tm)">${d}</div></div></a>`).join('')}`;
+}
+
+function generateOSINT(q){if(!q){showToast('Enter target');return;}const qe=encodeURIComponent(q);const el=document.getElementById('osint-links');if(!el)return;el.innerHTML=`<div class="stit pu">GENERATED OSINT LINKS FOR: ${esc(q)}</div>`+[['Google','https://www.google.com/search?q='+qe,'🔍'],['Twitter/X','https://twitter.com/search?q='+qe,'𝕏'],['LinkedIn','https://www.linkedin.com/search/results/all/?keywords='+qe,'💼'],['Shodan','https://www.shodan.io/search?query='+qe,'🔌'],['GDELT','https://api.gdeltproject.org/api/v2/doc/doc?query='+qe+'&mode=artlist&format=json&maxrecords=10','📰'],['IntelX','https://intelx.io/?s='+qe,'📡'],['Have I Been Pwned','https://haveibeenpwned.com/account/'+qe,'🔓'],['Wayback','https://web.archive.org/web/*/'+q,'⏮']].map(([n,u,i])=>`<a href="${u}" target="_blank" class="osint-a">${i} <div><div style="font-weight:600">${n}</div></div></a>`).join('');}
+
+function pActors(body){
+  body.innerHTML=`<div class="stit rd">APT THREAT ACTORS — OSINT INTELLIGENCE</div>
+  ${ACTORS.map(a=>`<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:9px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="display:flex;align-items:center;gap:7px"><div>${flagImg(a.cc)}</div><div><div style="font-size:12px;font-weight:700;color:var(--tp)">${esc(a.name)}</div><div style="font-size:9px;color:var(--ts)">${esc(a.country)}</div></div></div><div style="text-align:right"><div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;color:${a.risk>85?'var(--rd)':a.risk>70?'var(--am)':'var(--gr)'}">${a.risk}</div><div style="font-size:6.5px;font-family:'Orbitron',monospace;color:var(--tm)">RISK/100</div></div></div><div class="tgl" style="margin-bottom:5px"><span class="bdg bdg-pu" style="font-size:7px">${esc(a.motive)}</span>${a.active?'<span class="bdg bdg-rd" style="font-size:7px">ACTIVE</span>':''}</div><div style="font-size:9.5px;color:var(--ts);margin-bottom:4px"><b style="color:var(--am)">TARGETS:</b> ${esc(a.targets)}</div><div style="font-size:9px;color:var(--ts)"><b style="color:var(--a)">TTPs:</b> ${a.ttps.map(t=>esc(t)).join(' · ')}</div></div>`).join('')}
+  <div style="font-size:8.5px;color:var(--tm);font-family:'Share Tech Mono',monospace;padding:8px;background:var(--bg3);border:1px solid var(--b1);border-radius:2px;margin-top:8px">Sources: Mandiant APT reports, MITRE ATT&CK, CISA advisories, US-CERT, NCSC · All public OSINT · Updated from open sources</div>`;
+}
+
+function pHistory(body){body.innerHTML=`<div class="stit">MISSION LOG (${S.history.length} entries)</div>${S.history.length?S.history.map(e=>`<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:8px;cursor:pointer;margin-bottom:4px;transition:.15s" onclick="goTo(${e.lat},${e.lon},'${esc(e.name)}');closePanel()" onmouseover="this.style.borderColor='var(--a)'" onmouseout="this.style.borderColor='var(--b1)'"><div style="font-size:11px;font-weight:600;color:var(--tp);margin-bottom:2px">${e.flag?flagImg(e.flag):''} ${esc(e.name||'—')}</div><div style="font-size:9px;font-family:'Share Tech Mono',monospace;color:var(--tm)">${new Date(e.ts).toLocaleString()} · LAT:${parseFloat(e.lat).toFixed(3)} LON:${parseFloat(e.lon).toFixed(3)} · ${esc(e.layer)}</div></div>`).join(''):`<div class="ldb">No analyses logged yet</div>`}<button class="fb fb-rd" onclick="S.history=[];renderPanel('history')" style="margin-top:8px">CLEAR LOG</button>`;}
+
+function pSources(body){
+  const srcs=[['OSM Overpass API','https://overpass-api.de','Military bases, airports, infrastructure','FREE, No Key','gr','Community-verified geographic data — most comprehensive free military data source'],['OpenSky Network','https://opensky-network.org','Live ADS-B aircraft transponder data','FREE, No Key','gr','Real-time aircraft states from volunteer ADS-B receivers worldwide'],['GDELT Project v2','https://gdeltproject.org','Geopolitical events from 65+ languages, 15-min updates','FREE, No Key','gr','Real-time event extraction from global news media'],['NASA GIBS','https://gibs.earthdata.nasa.gov','12 satellite layers: MODIS, VIIRS, Sentinel','FREE, No Key','gr','NASA Earth Observing System Data and Information System'],['NASA FIRMS','https://firms.modaps.eosdis.nasa.gov','VIIRS/MODIS thermal anomalies & fire','FREE KEY','am','Near real-time fire and thermal anomaly detection'],['USGS Earthquakes','https://earthquake.usgs.gov','M4.5+ seismic events globally','FREE, No Key','gr','United States Geological Survey Earthquake Hazards Program'],['Open-Meteo','https://open-meteo.com','Weather + air quality + elevation','FREE, No Key','gr','ERA5 reanalysis + ECMWF forecast data — no rate limits'],['The Guardian API','https://open-platform.theguardian.com','International news articles','FREE (test key)','gr','UK media API — 5000/day free registered, 50/hr test key'],['REST Countries','https://restcountries.com','Country profiles, flags, borders','FREE, No Key','gr','Community-maintained country data from multiple sources'],['World Bank API','https://api.worldbank.org','GDP, military spending, development indicators','FREE, No Key','gr','World Bank Open Data — all indicators free'],['Nominatim / OSM','https://nominatim.openstreetmap.org','Geocoding & reverse geocoding','FREE, No Key','gr','OpenStreetMap geocoding — address and coordinate lookup'],['ReliefWeb / OCHA','https://reliefweb.int','UN humanitarian crisis and disaster data','FREE, No Key','gr','United Nations Office for the Coordination of Humanitarian Affairs'],['ACLED','https://acleddata.com','Armed conflict events with fatalities, actors, dates','FREE (registration)','am','Armed Conflict Location & Event Data Project — academic/research free'],['AbuseIPDB','https://abuseipdb.com','IP address threat scoring','FREE KEY (1000/day)','am','Community-driven IP abuse reports database'],['VirusTotal','https://virustotal.com','Multi-engine malware/threat scanning','FREE KEY (500/day)','am','Aggregates 70+ antivirus engines and reputation databases'],['OpenSeaMap','https://openseamap.org','Maritime chart overlay — shipping lanes, ports','FREE, No Key','gr','Community maritime navigation data'],['OpenRailwayMap','https://openrailwaymap.org','Global railway infrastructure','FREE, No Key','gr','OpenStreetMap railway data rendered as tile layer'],['FlagCDN','https://flagcdn.com','Country flag images','FREE, No Key','gr','Open flag image CDN with 250+ country flags']];
+  body.innerHTML=`<div class="stit">ALL DATA SOURCES (${srcs.length})</div>${srcs.map(([n,u,d,tier,col,detail])=>`<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:8px;margin-bottom:4px;cursor:pointer" onclick="window.open('${u}','_blank')"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><div style="font-size:10px;font-weight:600;color:var(--tp)">${n}</div><span class="bdg bdg-${col}" style="font-size:6.5px">${tier}</span></div><div style="font-size:9px;color:var(--ts);margin-bottom:2px">${d}</div><div style="font-size:8.5px;color:var(--tm)">${detail}</div></div>`).join('')}`;}
+
+function pSettings(body){
+  body.innerHTML=`<div class="stit">CONFIGURATION</div>
+  <button class="fb fb-am" onclick="openKeys()">⚙ OPEN API KEY MANAGER</button>
+  <div class="stit">MAP SETTINGS</div>
+  <div class="si-row"><div class="si-lbl">SATELLITE LAYER OPACITY</div><input type="range" min="0" max="100" value="93" style="width:100%;accent-color:var(--a)" oninput="S.lyG.getLayers()[0]?.setOpacity(this.value/100)"></div>
+  <div class="si-row"><div class="si-lbl">BASE MAP OPACITY</div><input type="range" min="0" max="100" value="20" style="width:100%;accent-color:var(--a)" oninput="S.map.eachLayer(l=>{if(l._url?.includes('openstreetmap'))l.setOpacity(this.value/100)})"></div>
+  <div class="stit">DEFAULT LAYER</div>
+  <select class="si-inp" onchange="setLayer(this.value)">${Object.entries(LAYERS).map(([k,l])=>`<option value="${k}" ${S.currentLayer===k?'selected':''}>${l.name}</option>`).join('')}</select>
+  <div class="stit">ANALYSIS DATE RANGE</div>
+  <div class="ig"><div><div class="si-lbl">BEFORE</div><input type="date" class="si-inp" value="${document.getElementById('bdate').value}" onchange="document.getElementById('bdate').value=this.value"></div><div><div class="si-lbl">AFTER</div><input type="date" class="si-inp" value="${document.getElementById('adate').value}" onchange="document.getElementById('adate').value=this.value"></div></div>
+  <div class="stit">ABOUT</div>
+  <div style="font-size:9px;color:var(--tm);font-family:'Share Tech Mono',monospace;line-height:1.8;padding:8px;background:var(--bg3);border:1px solid var(--b1);border-radius:2px">GEOINT PRO · Real Intelligence Platform<br>Architecture: Single HTML · Zero backend · All client-side<br>Military data: OpenStreetMap Overpass (community verified)<br>Aircraft: OpenSky Network ADS-B transponders<br>Events: GDELT Project (15-min real-time)<br>Seismic: USGS Earthquake Hazards<br>Imagery: NASA GIBS (MODIS/VIIRS/Sentinel)<br>News: The Guardian Open Platform API<br>Country: REST Countries + World Bank Open Data<br>AI: Claude API (claude.ai) / Groq fallback<br><br>All data is open-source and publicly verifiable.<br>No classified or proprietary data sources.</div>`;
+}
+
+function pAlerts(body){
+  const sv={'rd':'var(--rd)','am':'var(--am)','gr':'var(--gr)','a':'var(--a)','pu':'var(--pu)'};
+  body.innerHTML=`<div class="stit">ALERT CENTER (${S.alerts.length})</div><button class="fb fb-rd" onclick="S.alerts=[];document.getElementById('abadge').textContent='0';renderPanel('alerts')">CLEAR ALL</button>${S.alerts.length?S.alerts.map(a=>`<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:2px;padding:8px;margin-bottom:4px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:9px;font-family:'Orbitron',monospace;color:${sv[a.sev]||'var(--a)'};letter-spacing:.5px">${esc(a.type)}</span><span style="font-size:8.5px;font-family:'Share Tech Mono',monospace;color:var(--tm)">${timeAgo(new Date(a.ts).getTime())}</span></div><div style="font-size:11px;color:var(--ts)">${esc(a.msg)}</div><div style="font-size:8.5px;color:var(--tm);margin-top:2px">Source: ${esc(a.src)}</div></div>`).join(''):`<div class="ldb">No alerts</div>`}`;}
+
+// ─── KEY MANAGEMENT ───────────────────────────
+function openKeys(){document.getElementById('kmodal').classList.add('show');}
+function closeKeys(){document.getElementById('kmodal').classList.remove('show');}
+function saveKeys(){
+  const map={'k-groq':'groq','k-firms':'firms','k-guardian':'guardian','k-acled-email':'acledEmail','k-acled-key':'acledKey','k-abuse':'abuse','k-vt':'vt'};
+  Object.entries(map).forEach(([elId,key])=>{const v=document.getElementById(elId)?.value.trim()||'';S.keys[key]=v;if(v)localStorage.setItem('geoint_'+key,v);else localStorage.removeItem('geoint_'+key);});
+  closeKeys();showToast('API keys saved — reinitializing feeds');
+}
+function loadKeys(){Object.entries({'groq':'k-groq','firms':'k-firms','guardian':'k-guardian','acledEmail':'k-acled-email','acledKey':'k-acled-key','abuse':'k-abuse','vt':'k-vt'}).forEach(([key,elId])=>{const v=localStorage.getItem('geoint_'+key)||'';S.keys[key]=v;const el=document.getElementById(elId);if(el)el.value=v;});}
+
+// ─── EXPORT ───────────────────────────────────
+function exportReport(){
+  if(!S.aiAnalysis&&!S.data.mil.length&&!S.data.aircraft.length){showToast('Generate AI brief or load data first');return;}
+  const c=S.roi?S.roi.getCenter():S.map.getCenter();const g=S.geocode?.address||{};
+  const txt=`╔══════════════════════════════════════════════════════════════╗
+║  GEOINT PRO · REAL INTELLIGENCE REPORT                       ║
+╚══════════════════════════════════════════════════════════════╝
+Generated: ${new Date().toUTCString()}
+Classification: UNCLASSIFIED — Open Source Intelligence Only
+
+═══ TARGET LOCATION ═══
+Coordinates: ${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}
+Address: ${S.geocode?.display_name||'—'}
+Country: ${g.country||'—'} | State: ${g.state||'—'} | City: ${g.city||g.town||'—'}
+Elevation: ${S.elev!=null?S.elev+' m ASL':'Unknown'}
+ROI Area: ${S.roiArea||'N/A'} km²
+Analysis Period: ${document.getElementById('bdate').value} → ${document.getElementById('adate').value}
+
+═══ MILITARY INTELLIGENCE (OpenStreetMap Overpass) ═══
+Military installations in area: ${S.data.mil.length}
+Types: ${[...new Set(S.data.mil.map(m=>m.tags?.military||'base'))].join(', ')||'—'}
+${S.data.mil.slice(0,10).map(m=>`  • ${m.tags?.name||'Unnamed'} (${m.tags?.military||'base'}) — OSM:${m.id} — Verified`).join('\n')||'No military data loaded'}
+
+Airports/Airfields: ${S.data.airports.length}
+Military Airfields: ${S.data.airports.filter(e=>e.tags?.military||((e.tags?.name||'').match(/(air force|airforce|AFB|IAF|PAF)/i))).length}
+
+═══ LIVE AIR TRAFFIC (OpenSky Network ADS-B) ═══
+Aircraft in area: ${S.data.aircraft.length}
+Suspicious/Flagged: ${S.suspicious.length}
+${S.suspicious.slice(0,5).map(s=>`  ⚠ ${(s[1]||'NO CALLSIGN').trim()} (${s[2]||'?'}) — ${AC_SUSPICIOUS_RULES.filter(r=>r.test(s)).map(r=>r.label).join(', ')}`).join('\n')||'No suspicious aircraft'}
+
+═══ GEOPOLITICAL EVENTS (GDELT 48h) ═══
+Events in 200km radius: ${S.data.events.length}
+High-negative-tone events: ${S.data.events.filter(e=>parseFloat(e.tone||0)<-5).length}
+${S.data.events.slice(0,5).map(e=>`  • Tone:${e.tone} — ${(e.title||'').slice(0,70)} [${e.sourcecountry||'?'}]`).join('\n')||'—'}
+
+═══ SEISMIC DATA (USGS) ═══
+M4.5+ earthquakes past week: ${S.data.quakes.length}
+${S.data.quakes.slice(0,5).map(q=>`  • M${q.properties.mag.toFixed(1)} — ${q.properties.place||'—'}`).join('\n')||'—'}
+
+═══ ENVIRONMENTAL DATA (Open-Meteo) ═══
+${S.weather?`Avg Max Temp 30d: ${(S.weather.daily.temperature_2m_max.slice(-30).reduce((a,b)=>a+b,0)/30).toFixed(1)}°C
+Total Precip 30d: ${S.weather.daily.precipitation_sum.slice(-30).reduce((a,b)=>a+b,0).toFixed(0)}mm
+Max Wind Speed: ${Math.max(...S.weather.daily.windspeed_10m_max.slice(-30)).toFixed(0)} km/h`:'Weather data not loaded'}
+
+═══ COUNTRY INTELLIGENCE (REST Countries + World Bank) ═══
+${S.countryInfo?`Country: ${S.countryInfo.name?.common||'—'} (${S.countryInfo.name?.official||'—'})
+Population: ${S.countryInfo.population?(S.countryInfo.population/1e6).toFixed(1)+'M':'—'}
+GDP: ${S.worldBank?.gdp?.value?'$'+(S.worldBank.gdp.value/1e12).toFixed(3)+'T':'N/A'} (${S.worldBank?.gdp?.year||'—'})
+Military Spending: ${S.worldBank?.mil?.value?S.worldBank.mil.value.toFixed(2)+'% of GDP':'N/A'} (${S.worldBank?.mil?.year||'—'})
+Bordering countries: ${(S.countryInfo.borders||[]).join(', ')||'None'}`:'Country data not loaded'}
+
+═══ AI INTELLIGENCE BRIEF ═══
+${S.aiAnalysis?.text||'AI brief not generated — run 🤖 AI BRIEF to generate'}
+
+═══ DATA SOURCES USED ═══
+• OpenStreetMap Overpass API (military=*, aeroway=aerodrome)
+• OpenSky Network (ADS-B transponder data)
+• GDELT Project v2 (artgeo mode, 48h)
+• USGS Earthquake Hazards Program
+• Open-Meteo (ERA5 + ECMWF forecast)
+• REST Countries API
+• World Bank Open Data API
+• NASA GIBS (${LAYERS[S.currentLayer]?.name})
+• Nominatim/OSM (geocoding)
+
+All data is open-source, publicly verifiable, and unclassified.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+  const b=new Blob([txt],{type:'text/plain'});const u=URL.createObjectURL(b);const l=document.createElement('a');l.href=u;l.download=`GEOINT_PRO_${Date.now()}.txt`;l.click();URL.revokeObjectURL(u);showToast('Intelligence report exported');
+}
+
+// ─── UTILITIES ────────────────────────────────
+function setStatus(k,v,col){const el=document.getElementById(`st-${k}`);if(el){el.textContent=v;if(col)el.style.color=col;}}
+let toastT;
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3200);}
+function updateClock(){const d=new Date();document.getElementById('uclock').textContent=`UTC ${d.getUTCHours().toString().padStart(2,'0')}:${d.getUTCMinutes().toString().padStart(2,'0')}:${d.getUTCSeconds().toString().padStart(2,'0')}`;}
+
+// ─── INIT ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadKeys();
+  initMap();
+  setInterval(updateClock, 1000);
+  updateClock();
+  document.getElementById('bdate').addEventListener('change', e => {});
+  document.getElementById('adate').addEventListener('change', e => { setLayer(S.currentLayer, e.target.value); });
+  // Initial data load
+  setTimeout(() => {
+    fetchEQ().catch(()=>{});
+    fetchGDELT().catch(()=>{});
+    S.ov.add('ev'); S.ov.add('eq');
+    document.getElementById('live-w').style.display = 'block';
+  }, 1000);
+  showToast('GEOINT PRO online · Loading GDELT events and earthquakes...');
+});
+</script>
+</body>
+</html>
