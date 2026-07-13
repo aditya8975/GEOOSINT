@@ -83,22 +83,7 @@ Everything renders on a [Leaflet](https://leafletjs.com/) map with draw/measure 
 - [Chart.js](https://www.chartjs.org/) for data visualization
 - All data fetched client-side directly from public REST APIs
 
-## Getting started
-
-No installation or build step is required — it's a static site.
-
-\`\`\`bash
-
-git clone https://github.com/<your-username>/geoint-pro.git
-cd geoint-pro
-
-# Serve locally (recommended, avoids CORS issues with some browsers on file://)
-python3 -m http.server 8080
-# then open http://localhost:8080
-
-\`\`\`
-
-Or simply open `index.html` directly in a browser.
+ simply open `index.html` directly in a browser.
 
 ### API keys (optional, all free-tier)
 
