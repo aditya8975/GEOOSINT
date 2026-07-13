@@ -1,3 +1,16 @@
+# GEOINT PRO
+
+**A browser-based, open-source intelligence (OSINT) dashboard that aggregates live public data onto an interactive map — satellite imagery, military installations, air traffic, geopolitical events, seismic activity, weather, and country-level data — with zero backend.**
+
+![status](https://img.shields.io/badge/status-active-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-blue)
+![type](https://img.shields.io/badge/stack-vanilla%20JS-yellow)
+
+> All data comes from verified, public, open-source APIs (OpenStreetMap, NASA GIBS, OpenSky, GDELT, USGS, Open-Meteo, REST Countries, World Bank). No private, classified, or proprietary data is used or required.
+
+---
+
+
 ---
 ![Project Home](images/g1.PNG)
 ---
@@ -36,17 +49,6 @@
 ---
 ---
 ![Project Home](images/g14.PNG)
----
-# GEOINT PRO
-
-**A browser-based, open-source intelligence (OSINT) dashboard that aggregates live public data onto an interactive map — satellite imagery, military installations, air traffic, geopolitical events, seismic activity, weather, and country-level data — with zero backend.**
-
-![status](https://img.shields.io/badge/status-active-brightgreen)
-![license](https://img.shields.io/badge/license-MIT-blue)
-![type](https://img.shields.io/badge/stack-vanilla%20JS-yellow)
-
-> All data comes from verified, public, open-source APIs (OpenStreetMap, NASA GIBS, OpenSky, GDELT, USGS, Open-Meteo, REST Countries, World Bank). No private, classified, or proprietary data is used or required.
-
 ---
 
 ## What it does
