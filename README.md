@@ -10,6 +10,28 @@
 
 ---
 
+## What it does
+
+GEOINT PRO lets you drop a pin (or search a location) and pull together a live intelligence picture of that area, entirely client-side:
+
+| Module | Source | What you get |
+|---|---|---|
+| Satellite imagery | NASA GIBS | True color, false color (burn/vegetation), NDVI, thermal, night lights — 8 selectable layers |
+| Military installations | OpenStreetMap Overpass | Bases, airfields, checkpoints, ranges, bunkers, etc. |
+| Airports & airfields | OpenStreetMap Overpass | Civil/military airfield classification |
+| Live air traffic | OpenSky Network | Real-time ADS-B aircraft positions + heuristic "suspicious" flagging |
+| Geopolitical events | GDELT Project v2 | Recent events + tone/sentiment in a radius around your point of interest |
+| News | The Guardian API | Related news coverage |
+| Seismic activity | USGS | Recent M4.5+ earthquakes |
+| Environment | Open-Meteo | 30-day temperature, precipitation, wind history |
+| Country intelligence | REST Countries + World Bank | Population, GDP, military spend, borders |
+| Cyber lookups | ipinfo.io | Quick IP/domain lookups |
+| OSINT toolkit | — | Curated links to Bellingcat, SunCalc, WHOIS, Wayback Machine, OpenCorporates, etc. for manual investigation |
+| AI intelligence brief | Groq (Llama 3.3 70B) | Generates a written summary from all loaded data, using your own free API key |
+
+Everything renders on a [Leaflet](https://leafletjs.com/) map with draw/measure tools, a searchable command bar, and an exportable plain-text intelligence report.
+
+## Screenshots
 
 ---
 ![Project Home](images/g1.PNG)
@@ -51,30 +73,6 @@
 ![Project Home](images/g14.PNG)
 ---
 
-## What it does
-
-GEOINT PRO lets you drop a pin (or search a location) and pull together a live intelligence picture of that area, entirely client-side:
-
-| Module | Source | What you get |
-|---|---|---|
-| Satellite imagery | NASA GIBS | True color, false color (burn/vegetation), NDVI, thermal, night lights — 8 selectable layers |
-| Military installations | OpenStreetMap Overpass | Bases, airfields, checkpoints, ranges, bunkers, etc. |
-| Airports & airfields | OpenStreetMap Overpass | Civil/military airfield classification |
-| Live air traffic | OpenSky Network | Real-time ADS-B aircraft positions + heuristic "suspicious" flagging |
-| Geopolitical events | GDELT Project v2 | Recent events + tone/sentiment in a radius around your point of interest |
-| News | The Guardian API | Related news coverage |
-| Seismic activity | USGS | Recent M4.5+ earthquakes |
-| Environment | Open-Meteo | 30-day temperature, precipitation, wind history |
-| Country intelligence | REST Countries + World Bank | Population, GDP, military spend, borders |
-| Cyber lookups | ipinfo.io | Quick IP/domain lookups |
-| OSINT toolkit | — | Curated links to Bellingcat, SunCalc, WHOIS, Wayback Machine, OpenCorporates, etc. for manual investigation |
-| AI intelligence brief | Groq (Llama 3.3 70B) | Generates a written summary from all loaded data, using your own free API key |
-
-Everything renders on a [Leaflet](https://leafletjs.com/) map with draw/measure tools, a searchable command bar, and an exportable plain-text intelligence report.
-
-## Screenshots
-
-> _Add screenshots or a short GIF here (`docs/screenshot-1.png`) once you have them — GitHub renders images inline and this is usually the first thing a reviewer looks at._
 
 ## Tech stack
 
