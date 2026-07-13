@@ -88,12 +88,14 @@ Everything renders on a [Leaflet](https://leafletjs.com/) map with draw/measure 
 No installation or build step is required — it's a static site.
 
 \`\`\`bash
+
 git clone https://github.com/<your-username>/geoint-pro.git
 cd geoint-pro
 
 # Serve locally (recommended, avoids CORS issues with some browsers on file://)
 python3 -m http.server 8080
 # then open http://localhost:8080
+
 \`\`\`
 
 Or simply open `index.html` directly in a browser.
@@ -111,26 +113,6 @@ Some modules work out of the box with no key (OSM, OpenSky, USGS, Open-Meteo, RE
 | IP/domain reputation | AbuseIPDB | https://www.abuseipdb.com/register |
 | File/hash reputation | VirusTotal | https://www.virustotal.com/gui/join-us |
 
-## Project structure
-
-\`\`\`
-geoint-pro/
-├── index.html      # Markup only
-├── css/
-│   └── style.css   # All styling
-├── js/
-│   └── app.js       # Application logic (map, data fetching, UI state)
-├── docs/            # Screenshots / documentation assets
-├── LICENSE
-└── README.md
-\`\`\`
-
-## Roadmap / ideas
-
-- [ ] Split `app.js` into ES modules (map, data-sources, ui, export)
-- [ ] Add automated tests for the aircraft "suspicious" heuristics
-- [ ] Optional backend proxy to avoid client-side rate limits on Overpass/GDELT
-- [ ] Offline/cached mode for low-connectivity fieldwork
 
 ## Disclaimer
 
