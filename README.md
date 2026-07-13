@@ -25,9 +25,8 @@
 ---
 ![Project Home](images/g9.PNG)
 ---
----
-![Project Home](images/g10.PNG)
----
+
+
 ---
 ![Project Home](images/g11.PNG)
 ---
